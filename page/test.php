@@ -43,7 +43,7 @@ $has_questions = $questions->num_rows > 0;
         <h2 class="capitalize text-gray-1100 font-bold text-[28px] leading-[35px] dark:text-gray-dark-1100 mb-[13px]">
             <?php echo $test['title']; ?>
         </h2>
-        
+
         <div class="flex items-center text-xs text-gray-500 gap-x-[11px] mb-[37px]">
             <div class="flex items-center gap-x-1">
                 <img src="assets/images/icons/icon-home-2.svg" alt="Главная">
@@ -77,16 +77,16 @@ $has_questions = $questions->num_rows > 0;
                     Тест в разработке
                 </h3>
                 <p class="text-gray-500 dark:text-gray-dark-500 mb-6 max-w-md mx-auto">
-                    Извините, этот тест находится в стадии разработки. Наша команда работает над добавлением вопросов. 
+                    Извините, этот тест находится в стадии разработки. Наша команда работает над добавлением вопросов.
                     Пожалуйста, попробуйте другие доступные тесты.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="index.php?page=tests" 
-                       class="btn bg-color-brands text-white px-6 py-3 hover:bg-color-brands/90 transition-colors">
+                    <a href="index.php?page=tests"
+                        class="btn bg-color-brands text-white px-6 py-3 hover:bg-color-brands/90 transition-colors">
                         Вернуться к тестам
                     </a>
-                    <a href="index.php" 
-                       class="btn border border-gray-300 text-gray-700 px-6 py-3 hover:bg-gray-50 transition-colors dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800">
+                    <a href="index.php"
+                        class="btn border border-gray-300 text-gray-700 px-6 py-3 hover:bg-gray-50 transition-colors dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800">
                         На главную
                     </a>
                 </div>
@@ -95,11 +95,11 @@ $has_questions = $questions->num_rows > 0;
             <!-- Форма теста (только если есть вопросы) -->
             <form id="testForm" action="../event_user/submit_test.php" method="POST">
                 <input type="hidden" name="test_id" value="<?php echo $test_id; ?>">
-                
+
                 <div class="space-y-6 py-2">
-                    <?php 
+                    <?php
                     $question_num = 1;
-                    while($question = $questions->fetch_assoc()): 
+                    while ($question = $questions->fetch_assoc()):
                         $answer_ids = explode(',', $question['answer_ids']);
                         $answer_texts = explode(',', $question['answer_texts']);
                         $score_values = explode(',', $question['score_values']);
@@ -108,13 +108,13 @@ $has_questions = $questions->num_rows > 0;
                             <h3 class="text-normal font-semibold text-gray-1100 dark:text-gray-dark-1100 mb-4">
                                 Вопрос <?php echo $question_num; ?>: <?php echo $question['question_text']; ?>
                             </h3>
-                            
+
                             <div class="space-y-3">
-                                <?php for($i = 0; $i < count($answer_ids); $i++): ?>
+                                <?php for ($i = 0; $i < count($answer_ids); $i++): ?>
                                     <label class="flex items-center gap-3 p-3 rounded-lg border border-neutral dark:border-dark-neutral-border hover:bg-gray-50 dark:hover:bg-gray-dark-50 cursor-pointer transition-colors">
-                                        <input type="radio" name="question_<?php echo $question['id']; ?>" 
-                                               value="<?php echo $answer_ids[$i]; ?>" 
-                                               class="radio radio-primary" required>
+                                        <input type="radio" name="question_<?php echo $question['id']; ?>"
+                                            value="<?php echo $answer_ids[$i]; ?>"
+                                            class="radio radio-primary" required>
                                         <span class="text-gray-1100 dark:text-gray-dark-1100">
                                             <?php echo $answer_texts[$i]; ?>
                                         </span>
@@ -127,35 +127,35 @@ $has_questions = $questions->num_rows > 0;
                 </div>
 
                 <!-- Кнопка отправки -->
-                <div class="mt-12 text-center">
-                    <button type="submit" class="btn bg-color-brands text-white px-8 py-3 text-lg hover:bg-color-brands/90 transition-colors">
+                <div class="mt-6 md:mt-12 text-center">
+                    <button type="submit" class="btn bg-color-brands text-white px-4 md:px-8 py-3 text-base md:text-lg hover:bg-color-brands/90 transition-colors w-full md:w-auto mobile-btn">
                         Завершить тест и получить результаты
                     </button>
                 </div>
             </form>
 
             <script>
-            // Валидация формы
-            document.getElementById('testForm').addEventListener('submit', function(e) {
-                const questionBlocks = document.querySelectorAll('.question-block');
-                let allAnswered = true;
-                
-                questionBlocks.forEach(block => {
-                    const radios = block.querySelectorAll('input[type="radio"]');
-                    const answered = Array.from(radios).some(radio => radio.checked);
-                    if (!answered) {
-                        allAnswered = false;
-                        block.style.borderColor = 'red';
-                    } else {
-                        block.style.borderColor = '';
+                // Валидация формы
+                document.getElementById('testForm').addEventListener('submit', function(e) {
+                    const questionBlocks = document.querySelectorAll('.question-block');
+                    let allAnswered = true;
+
+                    questionBlocks.forEach(block => {
+                        const radios = block.querySelectorAll('input[type="radio"]');
+                        const answered = Array.from(radios).some(radio => radio.checked);
+                        if (!answered) {
+                            allAnswered = false;
+                            block.style.borderColor = 'red';
+                        } else {
+                            block.style.borderColor = '';
+                        }
+                    });
+
+                    if (!allAnswered) {
+                        e.preventDefault();
+                        alert('Пожалуйста, ответьте на все вопросы перед завершением теста.');
                     }
                 });
-                
-                if (!allAnswered) {
-                    e.preventDefault();
-                    alert('Пожалуйста, ответьте на все вопросы перед завершением теста.');
-                }
-            });
             </script>
         <?php endif; ?>
     </div>

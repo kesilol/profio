@@ -25,7 +25,7 @@ $results = $link->query("
         <h2 class="capitalize text-gray-1100 font-bold text-[28px] leading-[35px] dark:text-gray-dark-1100 mb-[13px]">
             Мои результаты тестов
         </h2>
-        
+
         <div class="flex items-center text-xs text-gray-500 gap-x-[11px] mb-[37px]">
             <div class="flex items-center gap-x-1">
                 <img src="assets/images/icons/icon-home-2.svg" alt="Главная">
@@ -38,14 +38,14 @@ $results = $link->query("
         <?php if ($results->num_rows > 0): ?>
             <!-- Список результатов -->
             <div class="grid grid-cols-1 gap-6">
-                <?php while($result = $results->fetch_assoc()): ?>
+                <?php while ($result = $results->fetch_assoc()): ?>
                     <div class="rounded-2xl border border-neutral bg-neutral-bg dark:border-dark-neutral-border dark:bg-dark-neutral-bg p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 rounded-lg grid place-items-center bg-blue/20">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-3">
+                            <div class="flex items-center gap-4 w-full md:w-auto">
+                                <div class="w-10 h-10 md:w-12 md:h-12 rounded-lg grid place-items-center bg-blue/20">
                                     <img src="assets/images/icons/icon-doc.svg" alt="Тест">
                                 </div>
-                                <div>
+                                <div class="flex-1">
                                     <h3 class="text-subtitle-semibold font-semibold text-gray-1100 dark:text-gray-dark-1100">
                                         <?php echo $result['test_title']; ?>
                                     </h3>
@@ -54,11 +54,11 @@ $results = $link->query("
                                     </p>
                                 </div>
                             </div>
-                            <span class="text-xs px-3 py-1 rounded-full bg-green/20 text-green font-semibold">
+                            <span class="text-xs px-3 py-1 rounded-full bg-green/20 text-green font-semibold self-start md:self-auto">
                                 <?php echo ucfirst($result['result_type']); ?>
                             </span>
                         </div>
-                        
+
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                             <div class="text-center p-3 rounded-lg bg-gray-50 dark:bg-gray-dark-50">
                                 <p class="text-sm text-gray-500 dark:text-gray-dark-500 mb-1">Набранные баллы</p>
@@ -79,14 +79,14 @@ $results = $link->query("
                                 </p>
                             </div>
                         </div>
-                        
+
                         <div class="flex gap-3">
-                            <a href="index.php?page=test-result&result_id=<?php echo $result['id']; ?>" 
-                               class="btn bg-color-brands text-white px-4 py-2 text-sm">
+                            <a href="index.php?page=test-result&result_id=<?php echo $result['id']; ?>"
+                                class="btn bg-color-brands text-white px-4 py-2 text-sm">
                                 Подробнее
                             </a>
-                            <a href="index.php?page=test&id=<?php echo $result['test_id']; ?>" 
-                               class="btn border border-neutral text-gray-500 dark:border-dark-neutral-border dark:text-gray-dark-500 px-4 py-2 text-sm">
+                            <a href="index.php?page=test&id=<?php echo $result['test_id']; ?>"
+                                class="btn border border-neutral text-gray-500 dark:border-dark-neutral-border dark:text-gray-dark-500 px-4 py-2 text-sm">
                                 Пройти снова
                             </a>
                         </div>

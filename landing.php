@@ -360,9 +360,9 @@ if (isset($_SESSION['user'])) {
       
       <div class="col-md-6 text-md-end">
         <div class="footer-links">
-          <a href="#" class="footer-link">Политика</a>
-          <a href="#" class="footer-link">Условия</a>
-          <a href="#" class="footer-link">Контакты</a>
+          <a href="#features" class="footer-link">Возможности</a>
+          <a href="#how-it-works" class="footer-link">Как работает</a>
+          <a href="#testimonials" class="footer-link">Отзывы</a>
         </div>
       </div>
     </div>

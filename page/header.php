@@ -12,11 +12,14 @@
     <link rel="stylesheet" href="assets/styles/tailwind.min.css?v=5.0">
     <link rel="stylesheet" href="assets/styles/style.min.css?v=5.0">
     <link rel="stylesheet" href="assets/styles/admin.css?v=1.0">
+    <!-- Мобильные стили -->
+    <link rel="stylesheet" href="assets/styles/mobile.css?v=1.0">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chivo:wght@400;700;900&amp;family=Noto+Sans:wght@400;500;600;700;800&amp;display=swap">
+    <link rel="stylesheet" href="assets/styles/mobile.css">
 
     <style>
         .logo-square {
@@ -32,7 +35,7 @@
 <body class="w-screen relative overflow-x-hidden min-h-screen bg-gray-100 scrollbar-hide dark:bg-[#000]">
     <div class="wrapper mx-auto text-gray-900 font-normal grid scrollbar-hide grid-cols-[257px,1fr] grid-rows-[auto,1fr]" id="layout">
         <!-- Боковое меню -->
-        <aside class="bg-white row-span-2 border-r border-neutral relative flex flex-col justify-between p-[25px] dark:bg-dark-neutral-bg dark:border-dark-neutral-border">
+        <aside class="bg-white row-span-2 border-r border-neutral relative flex flex-col justify-between p-[25px] dark:bg-dark-neutral-bg dark:border-dark-neutral-border" id="sidebar">
 
             <div>
                 <a class="mb-10 flex items-center gap-3" href="index.php">
@@ -144,14 +147,32 @@
                             <img class="cursor-pointer" id="sidebar-expand" src="assets/images/icons/icon-maximize-3.svg" alt="Развернуть меню">
                         </div>
                     </div>
+                </div>
+            </div>
         </aside>
 
         <!-- Верхняя панель -->
         <header class="flex items-center justify-between flex-wrap bg-neutral-bg p-5 gap-5 md:py-6 md:pl-[25px] md:pr-[38px] lg:flex-nowrap dark:bg-dark-neutral-bg lg:gap-0">
 
+            <!-- Гамбургер меню для мобильных -->
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <!-- Логотип для мобильных -->
+            <div class="mobile-logo lg:hidden">
+                <a class="flex items-center gap-3" href="index.php">
+                    <div class="logo-square bg-primary rounded flex items-center justify-center" style="width: 32px; height: 32px;">
+                        <span class="text-white fw-bold small">P</span>
+                    </div>
+                    <span class="fw-bold text-dark dark:text-white fs-5">Profio</span>
+                </a>
+            </div>
 
             <!-- Навигационные кнопки -->
-            <div class="flex items-center gap-4 order-last lg:order-first lg:ml-6">
+            <div class="desktop-nav flex items-center gap-4 order-last lg:order-first lg:ml-6 mobile-nav-buttons">
                 <a href="index.php?page=info#about"
                     class="px-4 py-2 text-gray-600 dark:text-gray-dark-500 hover:text-color-brands font-medium transition">
                     О нас
@@ -209,3 +230,8 @@
                 </div>
             </div>
         </header>
+
+        <!-- Оверлей для мобильного меню -->
+        <div class="mobile-overlay" id="mobileOverlay"></div>
+
+      

@@ -68,7 +68,7 @@ if ($user_role === 'куратор') {
         <h2 class="capitalize text-gray-1100 font-bold text-[28px] leading-[35px] dark:text-gray-dark-1100 mb-[13px]">
             <?php echo $user_role === 'куратор' ? 'Панель куратора' : 'Добро пожаловать, ' . $_SESSION['user']['login'] . '!'; ?>
         </h2>
-        
+
         <div class="flex items-center text-xs text-gray-500 gap-x-[11px] mb-[37px]">
             <div class="flex items-center gap-x-1">
                 <img src="assets/images/icons/icon-home-2.svg" alt="Главная">
@@ -223,10 +223,10 @@ if ($user_role === 'куратор') {
                     <div class="w-full bg-neutral h-[1px] mb-[19px] dark:bg-dark-neutral-border"></div>
                     <div class="space-y-4 mb-6">
                         <?php if ($recent_students->num_rows > 0): ?>
-                            <?php while($student = $recent_students->fetch_assoc()): ?>
+                            <?php while ($student = $recent_students->fetch_assoc()): ?>
                                 <div class="flex items-center justify-between">
-                                    <a href="index.php?page=student-detail&id=<?php echo $student['id']; ?>" 
-                                       class="text-normal text-gray-1100 dark:text-gray-dark-1100 hover:text-color-brands transition-colors">
+                                    <a href="index.php?page=student-detail&id=<?php echo $student['id']; ?>"
+                                        class="text-normal text-gray-1100 dark:text-gray-dark-1100 hover:text-color-brands transition-colors">
                                         <?php echo $student['name']; ?>
                                     </a>
                                     <span class="text-gray-500 text-sm">
@@ -252,11 +252,11 @@ if ($user_role === 'куратор') {
                     <div class="w-full bg-neutral h-[1px] mb-[19px] dark:bg-dark-neutral-border"></div>
                     <div class="space-y-4">
                         <?php if ($active_students->num_rows > 0): ?>
-                            <?php while($student = $active_students->fetch_assoc()): ?>
+                            <?php while ($student = $active_students->fetch_assoc()): ?>
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <a href="index.php?page=student-detail&id=<?php echo $student['id']; ?>" 
-                                           class="text-normal text-gray-1100 dark:text-gray-dark-1100 hover:text-color-brands transition-colors block">
+                                        <a href="index.php?page=student-detail&id=<?php echo $student['id']; ?>"
+                                            class="text-normal text-gray-1100 dark:text-gray-dark-1100 hover:text-color-brands transition-colors block">
                                             <?php echo $student['name']; ?>
                                         </a>
                                         <p class="text-sm text-gray-500">
@@ -282,7 +282,7 @@ if ($user_role === 'куратор') {
                     <div class="w-full bg-neutral h-[1px] mb-[19px] dark:bg-dark-neutral-border"></div>
                     <div class="space-y-4">
                         <?php if ($recent_test_results->num_rows > 0): ?>
-                            <?php while($test = $recent_test_results->fetch_assoc()): ?>
+                            <?php while ($test = $recent_test_results->fetch_assoc()): ?>
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <p class="text-normal text-gray-1100 dark:text-gray-dark-1100">
@@ -311,7 +311,7 @@ if ($user_role === 'куратор') {
 
         <?php else: ?>
             <!-- ★★★★ ПАНЕЛЬ СТУДЕНТА ★★★★ -->
-            
+
             <!-- Получаем результаты теста для студентов -->
             <?php
             $recent_results = $link->query("
@@ -372,9 +372,9 @@ if ($user_role === 'куратор') {
 
             <!-- Блок с результатами теста для новых пользователей -->
             <?php if ($has_test_results): ?>
-                <div class="rounded-2xl border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20 p-6 mb-6">
-                    <div class="flex items-center mb-4">
-                        <div class="w-12 h-12 rounded-lg bg-green-100 dark:bg-green-800 grid place-items-center mr-4">
+                <div class="rounded-2xl border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20 p-4 md:p-6 mb-6">
+                    <div class="flex flex-col md:flex-row md:items-center mb-4 text-center md:text-left">
+                        <div class="w-12 h-12 rounded-lg bg-green-100 dark:bg-green-800 grid place-items-center mr-0 md:mr-4 mb-3 md:mb-0 mx-auto md:mx-0">
                             <img src="assets/images/icons/icon-check-circle.svg" alt="Успех" class="w-6 h-6 text-green-600">
                         </div>
                         <div>
@@ -386,27 +386,27 @@ if ($user_role === 'куратор') {
                             </p>
                         </div>
                     </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 mb-4">
+                        <div class="bg-white dark:bg-gray-800 rounded-lg p-3 md:p-4">
                             <div class="text-sm text-gray-500 dark:text-gray-400">Ваш тип личности</div>
-                            <div class="text-xl font-bold text-color-brands capitalize">
+                            <div class="text-lg md:text-xl font-bold text-color-brands capitalize">
                                 <?php echo $test_result['result_type']; ?>
                             </div>
                         </div>
-                        <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+                        <div class="bg-white dark:bg-gray-800 rounded-lg p-3 md:p-4">
                             <div class="text-sm text-gray-500 dark:text-gray-400">Набранные баллы</div>
-                            <div class="text-xl font-bold text-gray-900 dark:text-white">
+                            <div class="text-lg md:text-xl font-bold text-gray-900 dark:text-white">
                                 <?php echo $test_result['total_score']; ?> баллов
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="flex gap-3">
-                        <a href="index.php?page=recommendations" class="btn bg-color-brands text-white px-4 py-2 text-sm">
+
+                    <div class="flex flex-col md:flex-row gap-3">
+                        <a href="index.php?page=recommendations" class="btn bg-color-brands text-white px-4 py-3 text-sm md:text-base w-full md:w-auto text-center">
                             Посмотреть рекомендации
                         </a>
-                        <a href="index.php?page=my-results" class="btn border border-color-brands text-color-brands px-4 py-2 text-sm">
+                        <a href="index.php?page=my-results" class="btn border border-color-brands text-color-brands px-4 py-3 text-sm md:text-base w-full md:w-auto text-center">
                             Все результаты
                         </a>
                     </div>
@@ -543,10 +543,10 @@ if ($user_role === 'куратор') {
                     <div class="w-full bg-neutral h-[1px] mb-[19px] dark:bg-dark-neutral-border"></div>
                     <div class="space-y-4 mb-6">
                         <?php if ($latest_recommendations->num_rows > 0): ?>
-                            <?php while($rec = $latest_recommendations->fetch_assoc()): ?>
+                            <?php while ($rec = $latest_recommendations->fetch_assoc()): ?>
                                 <div class="flex items-center justify-between">
-                                    <a href="index.php?page=profession-detail&id=<?php echo $rec['profession_id']; ?>" 
-                                       class="text-normal text-gray-1100 dark:text-gray-dark-1100 hover:text-color-brands transition-colors">
+                                    <a href="index.php?page=profession-detail&id=<?php echo $rec['profession_id']; ?>"
+                                        class="text-normal text-gray-1100 dark:text-gray-dark-1100 hover:text-color-brands transition-colors">
                                         <?php echo $rec['title']; ?>
                                     </a>
                                     <span class="text-green text-sm"><?php echo $rec['match_percentage']; ?>%</span>
@@ -554,13 +554,13 @@ if ($user_role === 'куратор') {
                             <?php endwhile; ?>
                         <?php else: ?>
                             <!-- Показываем популярные профессии если нет рекомендаций -->
-                            <?php 
+                            <?php
                             $popular_professions = $link->query("SELECT id, title FROM professions LIMIT 3");
-                            while($prof = $popular_professions->fetch_assoc()): 
+                            while ($prof = $popular_professions->fetch_assoc()):
                             ?>
                                 <div class="flex items-center justify-between">
-                                    <a href="index.php?page=profession-detail&id=<?php echo $prof['id']; ?>" 
-                                       class="text-normal text-gray-1100 dark:text-gray-dark-1100 hover:text-color-brands transition-colors">
+                                    <a href="index.php?page=profession-detail&id=<?php echo $prof['id']; ?>"
+                                        class="text-normal text-gray-1100 dark:text-gray-dark-1100 hover:text-color-brands transition-colors">
                                         <?php echo $prof['title']; ?>
                                     </a>
                                     <span class="text-gray-500 text-sm">Изучить</span>
@@ -579,16 +579,16 @@ if ($user_role === 'куратор') {
                 </div>
                 <div class="space-y-4">
                     <?php if ($recent_activity->num_rows > 0): ?>
-                        <?php while($activity = $recent_activity->fetch_assoc()): ?>
+                        <?php while ($activity = $recent_activity->fetch_assoc()): ?>
                             <div class="flex items-center gap-4">
                                 <div class="w-10 h-10 rounded-lg grid place-items-center 
                                     <?php echo $activity['type'] == 'test' ? 'bg-green/20' : ($activity['type'] == 'profession' ? 'bg-blue/20' : 'bg-violet/20'); ?>">
-                                    <img src="assets/images/icons/icon-<?php echo $activity['type'] == 'test' ? 'doc' : ($activity['type'] == 'profession' ? 'work' : 'project'); ?>.svg" 
-                                         alt="<?php echo $activity['type']; ?>">
+                                    <img src="assets/images/icons/icon-<?php echo $activity['type'] == 'test' ? 'doc' : ($activity['type'] == 'profession' ? 'work' : 'project'); ?>.svg"
+                                        alt="<?php echo $activity['type']; ?>">
                                 </div>
                                 <div>
                                     <p class="text-normal text-gray-1100 dark:text-gray-dark-1100">
-                                        <?php 
+                                        <?php
                                         if ($activity['type'] == 'test') {
                                             echo 'Пройден тест "' . $activity['title'] . '"';
                                         } elseif ($activity['type'] == 'profession') {
