@@ -372,13 +372,13 @@ if ($user_role === 'куратор') {
 
             <!-- Блок с результатами теста для новых пользователей -->
             <?php if ($has_test_results): ?>
-                <div class="rounded-2xl border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20 p-4 md:p-6 mb-6">
-                    <div class="flex flex-col md:flex-row md:items-center mb-4 text-center md:text-left">
-                        <div class="w-12 h-12 rounded-lg bg-green-100 dark:bg-green-800 grid place-items-center mr-0 md:mr-4 mb-3 md:mb-0 mx-auto md:mx-0">
-                            <img src="assets/images/icons/icon-check-circle.svg" alt="Успех" class="w-6 h-6 text-green-600">
+                <div class="rounded-2xl border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20 p-6 mb-6">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-lg bg-green-100 dark:bg-green-800 grid place-items-center mr-4 flex-shrink-0">
+                            <img src="assets/images/icons/icon-check-circle.svg" alt="Успех" class="w-6 h-6">
                         </div>
                         <div>
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">
                                 Результаты вашего теста готовы!
                             </h3>
                             <p class="text-sm text-gray-600 dark:text-gray-300">
@@ -387,26 +387,26 @@ if ($user_role === 'куратор') {
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 mb-4">
-                        <div class="bg-white dark:bg-gray-800 rounded-lg p-3 md:p-4">
-                            <div class="text-sm text-gray-500 dark:text-gray-400">Ваш тип личности</div>
-                            <div class="text-lg md:text-xl font-bold text-color-brands capitalize">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+                            <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">Ваш тип личности</div>
+                            <div class="text-xl font-bold text-color-brands capitalize">
                                 <?php echo $test_result['result_type']; ?>
                             </div>
                         </div>
-                        <div class="bg-white dark:bg-gray-800 rounded-lg p-3 md:p-4">
-                            <div class="text-sm text-gray-500 dark:text-gray-400">Набранные баллы</div>
-                            <div class="text-lg md:text-xl font-bold text-gray-900 dark:text-white">
+                        <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+                            <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">Набранные баллы</div>
+                            <div class="text-xl font-bold text-gray-900 dark:text-white">
                                 <?php echo $test_result['total_score']; ?> баллов
                             </div>
                         </div>
                     </div>
 
-                    <div class="flex flex-col md:flex-row gap-3">
-                        <a href="index.php?page=recommendations" class="btn bg-color-brands text-white px-4 py-3 text-sm md:text-base w-full md:w-auto text-center">
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <a href="index.php?page=recommendations" class="btn bg-color-brands text-white px-6 py-3 text-center">
                             Посмотреть рекомендации
                         </a>
-                        <a href="index.php?page=my-results" class="btn border border-color-brands text-color-brands px-4 py-3 text-sm md:text-base w-full md:w-auto text-center">
+                        <a href="index.php?page=my-results" class="btn border border-color-brands text-color-brands px-6 py-3 text-center">
                             Все результаты
                         </a>
                     </div>
