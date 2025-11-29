@@ -1,18 +1,18 @@
 <?php
 // Если пользователь уже авторизован, перенаправляем
 if (isset($_SESSION['user'])) {
-    header("Location: index.php?page=main");
-    exit();
+  header("Location: index.php?page=main");
+  exit();
 }
 ?>
 
 <main class="overflow-x-scroll scrollbar-hide flex flex-col justify-between pt-[42px] px-[23px] pb-[28px]">
   <div>
-    <form class="rounded-2xl bg-white mx-auto p-10 text-center max-w-[440px] my-[84px] dark:bg-[#1F2128]" action="event_user/signup.php" method="POST">
+    <form class="rounded-2xl bg-white mx-auto p-10 text-center max-w-[440px] my-[84px] dark:bg-[#1F2128]" action="event_user/signup.php" method="POST" id="signupForm">
       <div class="mb-4 text-center mx-auto">
         <img class="inline-block" src="assets/images/icons/icon-landing-success-1.svg" alt="landing success">
       </div>
-      
+
       <h3 class="font-bold text-2xl text-gray-1100 capitalize mb-[5px] dark:text-gray-dark-1100">
         <?php if (isset($_SESSION['onboarding_completed'])): ?>
           Создайте аккаунт для сохранения результатов
@@ -20,7 +20,7 @@ if (isset($_SESSION['user'])) {
           Регистрация
         <?php endif; ?>
       </h3>
-      
+
       <p class="text-sm text-gray-500 mb-[30px] dark:text-gray-dark-500">
         <?php if (isset($_SESSION['onboarding_completed'])): ?>
           Ваши результаты теста готовы! Сохраните их в личном кабинете.
@@ -148,13 +148,43 @@ if (isset($_SESSION['user'])) {
         <label for="psw">
           <p class="text-left text-sm mb-2 text-gray-1100 dark:text-gray-dark-1100">Пароль</p>
         </label>
-        <div class="form-control mb-[20px]">
+        <div class="form-control mb-[10px]">
           <div class="input-group border rounded-lg border-[#E8EDF2] dark:border-[#313442] <?php echo isset($_SESSION['error_pas']) ? 'border-red-500' : ''; ?>">
-            <input class="input flex-1 bg-transparent text-black focus:outline-none dark:text-white" type="password" placeholder="Password" name="password1" autocomplete="on" required>
-            <button class="btn-square border-white flex items-center justify-center bg-transparent">
+            <input class="input flex-1 bg-transparent text-black focus:outline-none dark:text-white"
+              type="password"
+              placeholder="Password"
+              name="password1"
+              id="password1"
+              autocomplete="on"
+              required
+              oninput="validatePassword()">
+            <button type="button" class="btn-square border-white flex items-center justify-center bg-transparent toggle-password">
               <img src="assets/images/icons/icon-eye.svg" alt="eye icon">
             </button>
           </div>
+
+          <!-- Блок с требованиями к паролю -->
+          <div class="mt-2 text-left">
+            <p class="text-xs text-gray-500 dark:text-gray-dark-500 mb-1">Пароль должен содержать:</p>
+            <ul class="text-xs space-y-1">
+              <li id="length" class="text-red-500 dark:text-red-400 flex items-center">
+                <span class="w-4">•</span> Не менее 8 символов
+              </li>
+              <li id="uppercase" class="text-red-500 dark:text-red-400 flex items-center">
+                <span class="w-4">•</span> Заглавную букву (A-Z)
+              </li>
+              <li id="lowercase" class="text-red-500 dark:text-red-400 flex items-center">
+                <span class="w-4">•</span> Строчную букву (a-z)
+              </li>
+              <li id="number" class="text-red-500 dark:text-red-400 flex items-center">
+                <span class="w-4">•</span> Цифру (0-9)
+              </li>
+              <li id="special" class="text-red-500 dark:text-red-400 flex items-center">
+                <span class="w-4">•</span> Спецсимвол (!@#$%^&*)
+              </li>
+            </ul>
+          </div>
+
           <?php if (isset($_SESSION['error_pas'])): ?>
             <div class="text-red-500 text-xs mt-1"><?php echo $_SESSION['error_pas']; ?></div>
           <?php endif; ?>
@@ -165,10 +195,20 @@ if (isset($_SESSION['user'])) {
         </label>
         <div class="form-control mb-[20px]">
           <div class="input-group border rounded-lg border-[#E8EDF2] dark:border-[#313442] <?php echo isset($_SESSION['error_pas']) ? 'border-red-500' : ''; ?>">
-            <input class="input flex-1 bg-transparent text-black focus:outline-none dark:text-white" type="password" placeholder="Password" name="password2" autocomplete="on" required>
-            <button class="btn-square border-white flex items-center justify-center bg-transparent">
+            <input class="input flex-1 bg-transparent text-black focus:outline-none dark:text-white"
+              type="password"
+              placeholder="Password"
+              name="password2"
+              id="password2"
+              autocomplete="on"
+              required
+              oninput="validatePasswordConfirmation()">
+            <button type="button" class="btn-square border-white flex items-center justify-center bg-transparent toggle-password">
               <img src="assets/images/icons/icon-eye.svg" alt="eye icon">
             </button>
+          </div>
+          <div id="passwordMatch" class="text-xs mt-1 hidden">
+            <span class="text-red-500 dark:text-red-400">Пароли не совпадают</span>
           </div>
           <?php if (isset($_SESSION['error_pas'])): ?>
             <div class="text-red-500 text-xs mt-1"><?php echo $_SESSION['error_pas']; ?></div>
@@ -176,19 +216,19 @@ if (isset($_SESSION['user'])) {
         </div>
       </div>
 
-      <button type="submit" class="btn normal-case h-fit min-h-fit transition-all duration-300 border-4 w-full border-neutral-bg mb-[20px] py-[14px] dark:border-dark-neutral-bg">
+      <button type="submit" class="btn normal-case h-fit min-h-fit transition-all duration-300 border-4 w-full border-neutral-bg mb-[20px] py-[14px] dark:border-dark-neutral-bg bg-color-brands text-white cursor-pointer" id="submitBtn">
         <?php if (isset($_SESSION['onboarding_completed'])): ?>
           Сохранить результаты и создать аккаунт
         <?php else: ?>
           Зарегистрироваться
         <?php endif; ?>
       </button>
-      
+
       <p class="text-sm text-gray-1100 dark:text-gray-dark-1100">
         У вас уже есть учетная запись?
         <a class="text-color-brands" href="index.php?page=sign-in">&nbsp;Войти</a>
       </p>
-      
+
       <?php if (!isset($_SESSION['onboarding_completed'])): ?>
         <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
           <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
@@ -200,6 +240,83 @@ if (isset($_SESSION['user'])) {
         </div>
       <?php endif; ?>
     </form>
+
+    <script>
+  function validatePassword() {
+    const password = document.getElementById('password1').value;
+    const password2 = document.getElementById('password2').value;
+
+    // Регулярные выражения для проверки
+    const hasLength = password.length >= 8;
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasLowercase = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecial = /[!@#$%^&*]/.test(password);
+
+    // Обновляем визуальные индикаторы
+    updateRequirement('length', hasLength);
+    updateRequirement('uppercase', hasUppercase);
+    updateRequirement('lowercase', hasLowercase);
+    updateRequirement('number', hasNumber);
+    updateRequirement('special', hasSpecial);
+
+    // Проверяем совпадение паролей
+    validatePasswordConfirmation();
+  }
+
+  function updateRequirement(elementId, isValid) {
+    const element = document.getElementById(elementId);
+    const text = element.textContent.replace('•', '').replace('✓', '').trim();
+
+    if (isValid) {
+      element.classList.remove('text-red-500', 'dark:text-red-400');
+      element.classList.add('text-green-500', 'dark:text-green-400');
+      element.innerHTML = '<span class="w-4">✓</span> ' + text;
+    } else {
+      element.classList.remove('text-green-500', 'dark:text-green-400');
+      element.classList.add('text-red-500', 'dark:text-red-400');
+      element.innerHTML = '<span class="w-4">•</span> ' + text;
+    }
+  }
+
+  function validatePasswordConfirmation() {
+    const password1 = document.getElementById('password1').value;
+    const password2 = document.getElementById('password2').value;
+    const matchElement = document.getElementById('passwordMatch');
+
+    if (password2 === '') {
+      matchElement.classList.add('hidden');
+      return;
+    }
+
+    if (password1 === password2) {
+      matchElement.classList.add('hidden');
+    } else {
+      matchElement.classList.remove('hidden');
+    }
+  }
+
+  // Функция для переключения видимости пароля
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.toggle-password').forEach(button => {
+      button.addEventListener('click', function() {
+        const input = this.closest('.input-group').querySelector('input');
+        const icon = this.querySelector('img');
+
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.classList.add('text-color-brands');
+        } else {
+          input.type = 'password';
+          icon.classList.remove('text-color-brands');
+        }
+      });
+    });
+
+    // Инициализация валидации
+    validatePassword();
+  });
+</script>
 
     <!-- Очистка ошибок после показа -->
     <?php

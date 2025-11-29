@@ -2,6 +2,36 @@
 session_start();
 require('../connect.php');
 
+// Функция для проверки сложности пароля
+function isPasswordStrong($password) {
+    // Не менее 8 символов
+    if (strlen($password) < 8) {
+        return "Пароль должен содержать не менее 8 символов";
+    }
+    
+    // Заглавная буква
+    if (!preg_match('/[A-Z]/', $password)) {
+        return "Пароль должен содержать хотя бы одну заглавную букву (A-Z)";
+    }
+    
+    // Строчная буква
+    if (!preg_match('/[a-z]/', $password)) {
+        return "Пароль должен содержать хотя бы одну строчную букву (a-z)";
+    }
+    
+    // Цифра
+    if (!preg_match('/[0-9]/', $password)) {
+        return "Пароль должен содержать хотя бы одну цифру (0-9)";
+    }
+    
+    // Спецсимвол
+    if (!preg_match('/[!@#$%^&*]/', $password)) {
+        return "Пароль должен содержать хотя бы один спецсимвол (!@#$%^&*)";
+    }
+    
+    return true;
+}
+
 // Получение данных из формы
 $login = $_POST['login'];
 $email = $_POST['email'];
@@ -20,13 +50,20 @@ $_SESSION['form_data'] = [
 
 // Проверка обязательных полей
 if (empty($login) || empty($email) || empty($role) || empty($education_level) || empty($pass1) || empty($pass2)) {
-    $_SESSION['error_required'] = 'Это поле обязательно для заполнения';
+    $_SESSION['error_required'] = 'Все поля обязательны для заполнения';
 } else {
     // Проверка уникальности email
     $sql_user_email = $link->query("SELECT * FROM `users` WHERE `email` = '$email'");
     if (mysqli_num_rows($sql_user_email) > 0) {
         $_SESSION['error_email'] = 'Такой email уже используется!';
-    } elseif ($pass1 !== $pass2) {
+    } 
+    // Проверка сложности пароля
+    elseif (isPasswordStrong($pass1) !== true) {
+        $password_error = isPasswordStrong($pass1);
+        $_SESSION['error_pas'] = $password_error;
+    }
+    // Проверка совпадения паролей
+    elseif ($pass1 !== $pass2) {
         $_SESSION['error_pas'] = 'Пароли не совпадают!';
     } else {
         $pas_hash = password_hash($pass1, PASSWORD_DEFAULT);
