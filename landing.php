@@ -23,6 +23,7 @@ if (isset($_SESSION['user'])) {
   <link rel="stylesheet" href="assets/styles/landing.css" />
   <!-- Main styles -->
   <link rel="stylesheet" href="assets/styles/style.min.css" />
+  <link rel="icon" href="assets/images/icons/favicon.svg" type="image/svg+xml" sizes="16x16">
 </head>
 
 <body class="bg-white dark:bg-gray-900">

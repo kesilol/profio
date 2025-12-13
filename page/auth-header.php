@@ -8,7 +8,7 @@
     <meta name="keywords" content="профориентация, тесты, профессии, карьера, образование">
     <meta name="robots" content="index, follow">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0">
-    <link rel="icon" href="assets/images/icons/icon-favicon.svg" type="image/x-icon" sizes="16x16">
+    <link rel="icon" href="assets/images/icons/favicon.svg" type="image/svg+xml" sizes="16x16">
     <link rel="stylesheet" href="assets/styles/tailwind.min.css?v=5.0">
     <link rel="stylesheet" href="assets/styles/style.min.css?v=5.0">
     <!-- Bootstrap Icons -->

@@ -128,7 +128,7 @@ if (!empty($errors)) {
     <title>Настройки - Profio</title>
     <meta name="description" content="Настройки пользователя системы Profio">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0">
-    <link rel="icon" href="assets/images/icons/icon-favicon.svg" type="image/x-icon" sizes="16x16">
+    <link rel="icon" href="assets/images/icons/favicon.svg" type="image/svg+xml" sizes="16x16">
     <link rel="stylesheet" href="assets/styles/tailwind.min.css?v=5.0">
     <link rel="stylesheet" href="assets/styles/style.min.css?v=5.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">

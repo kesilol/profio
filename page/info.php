@@ -136,7 +136,7 @@ $pageTitle = "Информация";
                     </div>
                     <div>
                         <div class="font-medium text-gray-900 dark:text-white mb-1">Как составить план развития?</div>
-                        <div class="text-sm text-gray-600 dark:text-gray-dark-500">После тестов система предложит план в соответствующем разделе.</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-dark-500">План развития можно создать индивидуально в разделе "План развития".</div>
                     </div>
                 </div>
             </div>

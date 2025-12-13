@@ -38,14 +38,23 @@ $methodologies = $link->query("
         <!-- Список тестов -->
         <div class="mb-8">
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                <?php while ($test = $tests->fetch_assoc()): 
+                <?php 
+                // Создаем массив для хранения информации о доступности тестов
+                $available_tests = [];
+                
+                while ($test = $tests->fetch_assoc()): 
                     // Проверяем, есть ли вопросы у теста
                     $questions_count = $link->query("SELECT COUNT(*) as count FROM questions WHERE test_id = '{$test['id']}'")->fetch_assoc()['count'];
                     $is_available = $questions_count > 0;
                     
-                    // Проверяем, прошел ли пользователь этот тест
+                    // Сохраняем информацию о доступных тестах для статистики
+                    if ($is_available) {
+                        $available_tests[] = $test['id'];
+                    }
+                    
+                    // Проверяем, прошел ли пользователь этот тест (хотя бы один раз)
                     $user_id = $_SESSION['user']['id_user'];
-                    $passed = $link->query("SELECT id FROM test_results WHERE user_id = '$user_id' AND test_id = '{$test['id']}'");
+                    $passed = $link->query("SELECT id FROM test_results WHERE user_id = '$user_id' AND test_id = '{$test['id']}' LIMIT 1");
                     $is_passed = $passed->num_rows > 0;
                 ?>
                     <div class="rounded-2xl border border-neutral bg-neutral-bg dark:border-dark-neutral-border dark:bg-dark-neutral-bg p-6 flex flex-col <?php echo !$is_available ? 'opacity-70' : ''; ?>">
@@ -55,7 +64,7 @@ $methodologies = $link->query("
                             </div>
                             <div class="flex flex-col items-end gap-1">
                                 <span class="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600 dark:bg-gray-dark-100 dark:text-gray-dark-600">
-                                    <?php echo $test['type_name']; ?>
+                                    <?php echo htmlspecialchars($test['type_name']); ?>
                                 </span>
                                 <?php if (!$is_available): ?>
                                     <span class="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">
@@ -74,11 +83,11 @@ $methodologies = $link->query("
                         </div>
 
                         <h3 class="text-subtitle-semibold font-semibold text-gray-1100 dark:text-gray-dark-1100 mb-2">
-                            <?php echo $test['title']; ?>
+                            <?php echo htmlspecialchars($test['title']); ?>
                         </h3>
 
                         <p class="text-gray-500 dark:text-gray-dark-500 text-sm mb-4 flex-grow">
-                            <?php echo $test['description']; ?>
+                            <?php echo htmlspecialchars($test['description']); ?>
                         </p>
 
                         <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-dark-500 mb-4">
@@ -120,14 +129,14 @@ $methodologies = $link->query("
                 <?php while ($method = $methodologies->fetch_assoc()): ?>
                     <div>
                         <h4 class="font-semibold text-gray-1100 dark:text-gray-dark-1100 mb-2">
-                            <?php echo $method['name']; ?>
+                            <?php echo htmlspecialchars($method['name']); ?>
                         </h4>
                         <p class="text-gray-500 dark:text-gray-dark-500 text-sm">
-                            <?php echo $method['description']; ?>
+                            <?php echo htmlspecialchars($method['description']); ?>
                         </p>
                         <?php if ($method['key_points']): ?>
                             <p class="text-gray-400 dark:text-gray-dark-400 text-xs mt-2">
-                                <strong>Ключевые типы:</strong> <?php echo $method['key_points']; ?>
+                                <strong>Ключевые типы:</strong> <?php echo htmlspecialchars($method['key_points']); ?>
                             </p>
                         <?php endif; ?>
                     </div>
@@ -138,9 +147,21 @@ $methodologies = $link->query("
         <!-- Статистика тестирования -->
         <?php
         $user_id = $_SESSION['user']['id_user'];
-        $passed_tests = $link->query("SELECT COUNT(*) as count FROM test_results WHERE user_id = '$user_id'")->fetch_assoc()['count'];
-        $total_tests = $link->query("SELECT COUNT(*) as count FROM tests WHERE id IN (SELECT DISTINCT test_id FROM questions)")->fetch_assoc()['count'];
-        $progress = $total_tests > 0 ? round(($passed_tests / $total_tests) * 100) : 0;
+        
+        // 1. Считаем УНИКАЛЬНЫЕ пройденные тесты (DISTINCT)
+        $passed_query = $link->query("
+            SELECT COUNT(DISTINCT test_id) as count 
+            FROM test_results 
+            WHERE user_id = '$user_id' 
+            AND test_id IN (" . (count($available_tests) > 0 ? implode(',', $available_tests) : '0') . ")
+        ");
+        $passed_tests = $passed_query->fetch_assoc()['count'];
+        
+        // 2. Всего доступных тестов (с вопросами)
+        $total_tests = count($available_tests);
+        
+        // 3. Прогресс (максимум 100%)
+        $progress = $total_tests > 0 ? min(100, round(($passed_tests / $total_tests) * 100)) : 0;
         ?>
         
         <div class="mt-8 rounded-2xl border border-neutral bg-neutral-bg dark:border-dark-neutral-border dark:bg-dark-neutral-bg p-6">
@@ -151,29 +172,48 @@ $methodologies = $link->query("
                 <div class="text-center">
                     <div class="text-2xl font-bold text-color-brands"><?php echo $passed_tests; ?></div>
                     <div class="text-sm text-gray-500 dark:text-gray-dark-500">Пройдено тестов</div>
+                    <div class="text-xs text-gray-400 dark:text-gray-dark-400 mt-1">(уникальных)</div>
                 </div>
                 <div class="text-center">
                     <div class="text-2xl font-bold text-gray-1100 dark:text-gray-dark-1100"><?php echo $total_tests; ?></div>
                     <div class="text-sm text-gray-500 dark:text-gray-dark-500">Всего доступно</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-2xl font-bold text-green-600"><?php echo $progress; ?>%</div>
+                    <div class="text-2xl font-bold <?php echo $progress == 100 ? 'text-green-600' : 'text-color-brands'; ?>">
+                        <?php echo $progress; ?>%
+                    </div>
                     <div class="text-sm text-gray-500 dark:text-gray-dark-500">Прогресс</div>
                 </div>
             </div>
-            <?php if ($progress < 100): ?>
+            
+            <?php if ($progress < 100 && $total_tests > 0): ?>
                 <div class="mt-4">
                     <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
                         <div class="bg-color-brands h-2 rounded-full" style="width: <?php echo $progress; ?>%"></div>
                     </div>
                     <p class="text-xs text-gray-500 dark:text-gray-dark-500 mt-2">
-                        Пройдите все тесты для получения полной картины ваших профессиональных склонностей
+                        <?php if ($passed_tests == 0): ?>
+                            Начните проходить тесты для получения рекомендаций
+                        <?php else: ?>
+                            Пройдено <?php echo $passed_tests; ?> из <?php echo $total_tests; ?> тестов
+                            <?php if ($total_tests - $passed_tests == 1): ?>
+                                - остался 1 тест
+                            <?php elseif ($total_tests - $passed_tests > 0): ?>
+                                - осталось <?php echo $total_tests - $passed_tests; ?> тестов
+                            <?php endif; ?>
+                        <?php endif; ?>
                     </p>
                 </div>
-            <?php else: ?>
+            <?php elseif ($progress == 100 && $total_tests > 0): ?>
                 <div class="mt-4 p-3 bg-green-50 rounded-lg border border-green-200 dark:bg-green-900/20 dark:border-green-800">
                     <p class="text-sm text-green-800 dark:text-green-300 text-center">
                         🎉 Поздравляем! Вы прошли все доступные тесты!
+                    </p>
+                </div>
+            <?php else: ?>
+                <div class="mt-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800">
+                    <p class="text-sm text-yellow-800 dark:text-yellow-300 text-center">
+                        📝 Пока нет доступных тестов для прохождения
                     </p>
                 </div>
             <?php endif; ?>

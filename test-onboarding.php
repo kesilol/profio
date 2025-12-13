@@ -43,6 +43,7 @@ if ($questions->num_rows == 0) {
     <title>Тест Климова - Profio</title>
     <link rel="stylesheet" href="assets/styles/style.min.css">
     <link rel="stylesheet" href="assets/styles/tailwind.min.css">
+    <link rel="icon" href="assets/images/icons/favicon.svg" type="image/svg+xml" sizes="16x16">
     <style>
         .logo-square {
             background: #7364db !important;

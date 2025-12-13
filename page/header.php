@@ -8,7 +8,7 @@
     <meta name="keywords" content="профориентация, тесты, профессии, карьера, образование">
     <meta name="robots" content="index, follow">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0">
-    <link rel="icon" href="assets/images/icons/icon-favicon.svg" type="image/x-icon" sizes="16x16">
+    <link rel="icon" href="assets/images/icons/favicon.svg" type="image/svg+xml" sizes="16x16">
     <link rel="stylesheet" href="assets/styles/tailwind.min.css?v=5.0">
     <link rel="stylesheet" href="assets/styles/style.min.css?v=5.0">
     <link rel="stylesheet" href="assets/styles/admin.css?v=1.0">
@@ -126,7 +126,7 @@
                     <?php endif; ?>
 
                     <!-- Управление темой -->
-                    <div class="rounded-xl bg-neutral pt-4 flex items-center gap-5 mt-5 sidebar-control pr-[18px] pb-[13px] pl-[19px] dark:bg-dark-neutral-border">
+                    <div class="rounded-xl bg-neutral pt-4 flex items-center justify-center gap-5 mt-5 sidebar-control pr-[18px] pb-[13px] pl-[19px] dark:bg-dark-neutral-border">
                         <div class="flex items-center gap-3">
                             <i class="moon-icon" id="theme-toggle-dark-icon">
                                 <img class="cursor-pointer" src="assets/images/icons/icon-moon.svg" alt="Темная тема">
@@ -141,10 +141,6 @@
                             <i class="sun-icon" id="theme-toggle-light-icon">
                                 <img class="cursor-pointer" src="assets/images/icons/icon-sun.svg" alt="Светлая тема">
                             </i>
-                        </div>
-                        <div class="bg-neutral-bg w-[2px] h-[30px] dark:bg-dark-neutral-bg"></div>
-                        <div>
-                            <img class="cursor-pointer" id="sidebar-expand" src="assets/images/icons/icon-maximize-3.svg" alt="Развернуть меню">
                         </div>
                     </div>
                 </div>
@@ -193,7 +189,7 @@
                     <label class="cursor-pointer dropdown-label" tabindex="0">
                         <div class="flex items-center gap-3">
                             <span class="text-normal font-semibold text-gray-500 dark:text-gray-dark-500">
-                                <?php echo $_SESSION['user']['login'] ?? 'Иван Петров'; ?>
+                                <?php echo $_SESSION['user']['login'] ?? 'Вход'; ?>
                             </span>
                         </div>
                     </label>
@@ -233,5 +229,3 @@
 
         <!-- Оверлей для мобильного меню -->
         <div class="mobile-overlay" id="mobileOverlay"></div>
-
-      
