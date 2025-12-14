@@ -23,11 +23,33 @@
     </label>
     <div class="form-control mb-[20px]">
       <div class="input-group border rounded-lg border-[#E8EDF2] dark:border-[#313442]">
-        <input class="input flex-1 bg-transparent text-black focus:outline-none dark:text-gray-dark-300" type="password" placeholder="Password" name="psw" autocomplete="on">
-        <button class="btn-square border-white flex items-center justify-center bg-transparent"><img src="assets/images/icons/icon-eye.svg" alt="eye icon"></button>
+        <input class="input flex-1 bg-transparent text-black focus:outline-none dark:text-gray-dark-300" type="password" placeholder="Password" name="psw" id="password" autocomplete="on" required>
+        <button type="button" class="btn-square border-white flex items-center justify-center bg-transparent toggle-password">
+          <img src="assets/images/icons/icon-eye.svg" alt="eye icon">
+        </button>
       </div>
     </div>
   </div>
   <button class="btn normal-case h-fit min-h-fit transition-all duration-300 border-4 w-full border-neutral-bg mb-[20px] py-[14px] dark:border-dark-neutral-bg">Вход</button>
   <p class="text-sm text-gray-1100 dark:text-gray-dark-1100">У вас нет учетной записи?<a class="text-color-brands" href="index.php?page=sign-up">&nbsp;Зарегестрироваться</a></p>
 </form>
+
+<script>
+  // Функция для переключения видимости пароля
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.toggle-password').forEach(button => {
+      button.addEventListener('click', function() {
+        const input = this.closest('.input-group').querySelector('input');
+        const icon = this.querySelector('img');
+
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.classList.add('text-color-brands');
+        } else {
+          input.type = 'password';
+          icon.classList.remove('text-color-brands');
+        }
+      });
+    });
+  });
+</script>
