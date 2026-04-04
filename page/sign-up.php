@@ -10,7 +10,9 @@ if (isset($_SESSION['user'])) {
   <div>
     <form class="rounded-2xl bg-white mx-auto p-10 text-center max-w-[440px] my-[84px] dark:bg-[#1F2128]" action="event_user/signup.php" method="POST" id="signupForm">
       <div class="mb-4 text-center mx-auto">
-        <img class="inline-block" src="assets/images/icons/icon-landing-success-1.svg" alt="landing success">
+        <a href="index.php" class="inline-block hover:opacity-80 transition-opacity">
+          <img class="inline-block" src="assets/images/icons/icon-landing-success-1.svg" alt="landing success">
+        </a>
       </div>
 
       <h3 class="font-bold text-2xl text-gray-1100 capitalize mb-[5px] dark:text-gray-dark-1100">
@@ -149,7 +151,7 @@ if (isset($_SESSION['user'])) {
           <p class="text-left text-sm mb-2 text-gray-1100 dark:text-gray-dark-1100">Пароль</p>
         </label>
         <div class="form-control mb-[10px]">
-          <div class="input-group border rounded-lg border-[#E8EDF2] dark:border-[#313442] <?php echo isset($_SESSION['error_pas']) ? 'border-red-500' : ''; ?>">
+          <div class="input-group border rounded-lg border-[#E8EDF2] dark:border-[#313442] <?php echo isset($_SESSION['error_pas']) ? 'border-red-500' : ''; ?> relative">
             <input class="input flex-1 bg-transparent text-black focus:outline-none dark:text-white"
               type="password"
               placeholder="Password"
@@ -157,32 +159,49 @@ if (isset($_SESSION['user'])) {
               id="password1"
               autocomplete="on"
               required
+              onfocus="showPasswordRequirements()"
+              onblur="hidePasswordRequirements()"
               oninput="validatePassword()">
             <button type="button" class="btn-square border-white flex items-center justify-center bg-transparent toggle-password">
               <img src="assets/images/icons/icon-eye.svg" alt="eye icon">
             </button>
           </div>
 
-          <!-- Блок с требованиями к паролю -->
-          <div class="mt-2 text-left">
-            <p class="text-xs text-gray-500 dark:text-gray-dark-500 mb-1">Пароль должен содержать:</p>
-            <ul class="text-xs space-y-1">
-              <li id="length" class="text-red-500 dark:text-red-400 flex items-center">
-                <span class="w-4">•</span> Не менее 8 символов
-              </li>
-              <li id="uppercase" class="text-red-500 dark:text-red-400 flex items-center">
-                <span class="w-4">•</span> Заглавную букву (A-Z)
-              </li>
-              <li id="lowercase" class="text-red-500 dark:text-red-400 flex items-center">
-                <span class="w-4">•</span> Строчную букву (a-z)
-              </li>
-              <li id="number" class="text-red-500 dark:text-red-400 flex items-center">
-                <span class="w-4">•</span> Цифру (0-9)
-              </li>
-              <li id="special" class="text-red-500 dark:text-red-400 flex items-center">
-                <span class="w-4">•</span> Спецсимвол (!@#$%^&*)
-              </li>
-            </ul>
+          <!-- Блок с требованиями к паролю (изначально скрыт) -->
+          <div id="passwordRequirements" class="mt-2 text-left hidden transition-all duration-300">
+            <p class="text-xs text-gray-500 dark:text-gray-dark-500 mb-2 font-medium">🔒 Требования к паролю:</p>
+            <div class="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 space-y-1.5">
+              <div id="length" class="text-xs flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span>Не менее 8 символов</span>
+              </div>
+              <div id="uppercase" class="text-xs flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span>Заглавная буква (A-Z)</span>
+              </div>
+              <div id="lowercase" class="text-xs flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span>Строчная буква (a-z)</span>
+              </div>
+              <div id="number" class="text-xs flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span>Цифра (0-9)</span>
+              </div>
+              <div id="special" class="text-xs flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span>Спецсимвол (!@#$%^&*-_)</span>
+              </div>
+            </div>
           </div>
 
           <?php if (isset($_SESSION['error_pas'])): ?>
@@ -208,7 +227,12 @@ if (isset($_SESSION['user'])) {
             </button>
           </div>
           <div id="passwordMatch" class="text-xs mt-1 hidden">
-            <span class="text-red-500 dark:text-red-400">Пароли не совпадают</span>
+            <span class="text-red-500 dark:text-red-400 flex items-center gap-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              Пароли не совпадают
+            </span>
           </div>
           <?php if (isset($_SESSION['error_pas'])): ?>
             <div class="text-red-500 text-xs mt-1"><?php echo $_SESSION['error_pas']; ?></div>
@@ -216,7 +240,7 @@ if (isset($_SESSION['user'])) {
         </div>
       </div>
 
-      <button type="submit" class="btn normal-case h-fit min-h-fit transition-all duration-300 border-4 w-full border-neutral-bg mb-[20px] py-[14px] dark:border-dark-neutral-bg bg-color-brands text-white cursor-pointer" id="submitBtn">
+      <button type="submit" class="btn normal-case h-fit min-h-fit transition-all duration-300 border-4 w-full border-neutral-bg mb-[20px] py-[14px] dark:border-dark-neutral-bg bg-color-brands text-white cursor-pointer hover:opacity-90" id="submitBtn">
         <?php if (isset($_SESSION['onboarding_completed'])): ?>
           Сохранить результаты и создать аккаунт
         <?php else: ?>
@@ -224,10 +248,15 @@ if (isset($_SESSION['user'])) {
         <?php endif; ?>
       </button>
 
-      <p class="text-sm text-gray-1100 dark:text-gray-dark-1100">
-        У вас уже есть учетная запись?
-        <a class="text-color-brands" href="index.php?page=sign-in">&nbsp;Войти</a>
-      </p>
+      <div class="text-center">
+        <a href="index.php" class="text-sm text-gray-500 hover:text-color-brands transition-colors dark:text-gray-dark-500 inline-block mb-2">
+          ← На главную
+        </a>
+        <p class="text-sm text-gray-1100 dark:text-gray-dark-1100">
+          У вас уже есть учетная запись?
+          <a class="text-color-brands" href="index.php?page=sign-in">&nbsp;Войти</a>
+        </p>
+      </div>
 
       <?php if (!isset($_SESSION['onboarding_completed'])): ?>
         <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
@@ -242,16 +271,34 @@ if (isset($_SESSION['user'])) {
     </form>
 
     <script>
+  function showPasswordRequirements() {
+    const requirementsDiv = document.getElementById('passwordRequirements');
+    if (requirementsDiv) {
+      requirementsDiv.classList.remove('hidden');
+    }
+  }
+
+  function hidePasswordRequirements() {
+    const password = document.getElementById('password1').value;
+    // Скрываем только если поле пустое
+    if (!password) {
+      const requirementsDiv = document.getElementById('passwordRequirements');
+      if (requirementsDiv) {
+        requirementsDiv.classList.add('hidden');
+      }
+    }
+  }
+
   function validatePassword() {
     const password = document.getElementById('password1').value;
     const password2 = document.getElementById('password2').value;
 
-    // Регулярные выражения для проверки
+    // Регулярные выражения для проверки (добавлены - и _)
     const hasLength = password.length >= 8;
     const hasUppercase = /[A-Z]/.test(password);
     const hasLowercase = /[a-z]/.test(password);
     const hasNumber = /[0-9]/.test(password);
-    const hasSpecial = /[!@#$%^&*]/.test(password);
+    const hasSpecial = /[!@#$%^&*\-_]/.test(password); // Добавлены - и _
 
     // Обновляем визуальные индикаторы
     updateRequirement('length', hasLength);
@@ -262,20 +309,30 @@ if (isset($_SESSION['user'])) {
 
     // Проверяем совпадение паролей
     validatePasswordConfirmation();
+    
+    return hasLength && hasUppercase && hasLowercase && hasNumber && hasSpecial;
   }
 
   function updateRequirement(elementId, isValid) {
     const element = document.getElementById(elementId);
-    const text = element.textContent.replace('•', '').replace('✓', '').trim();
-
+    if (!element) return;
+    
+    const textSpan = element.querySelector('span:last-child') || element.querySelector('span');
+    const text = textSpan ? textSpan.textContent : element.textContent.replace(/[✓✗]/g, '').trim();
+    const svg = element.querySelector('svg');
+    
     if (isValid) {
-      element.classList.remove('text-red-500', 'dark:text-red-400');
+      element.classList.remove('text-gray-500', 'dark:text-gray-400', 'text-red-500', 'dark:text-red-400');
       element.classList.add('text-green-500', 'dark:text-green-400');
-      element.innerHTML = '<span class="w-4">✓</span> ' + text;
+      if (svg) {
+        svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>';
+      }
     } else {
       element.classList.remove('text-green-500', 'dark:text-green-400');
-      element.classList.add('text-red-500', 'dark:text-red-400');
-      element.innerHTML = '<span class="w-4">•</span> ' + text;
+      element.classList.add('text-gray-500', 'dark:text-gray-400');
+      if (svg) {
+        svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>';
+      }
     }
   }
 
@@ -286,13 +343,15 @@ if (isset($_SESSION['user'])) {
 
     if (password2 === '') {
       matchElement.classList.add('hidden');
-      return;
+      return true;
     }
 
     if (password1 === password2) {
       matchElement.classList.add('hidden');
+      return true;
     } else {
       matchElement.classList.remove('hidden');
+      return false;
     }
   }
 
@@ -305,16 +364,22 @@ if (isset($_SESSION['user'])) {
 
         if (input.type === 'password') {
           input.type = 'text';
-          icon.classList.add('text-color-brands');
+          if (icon) icon.style.opacity = '0.7';
         } else {
           input.type = 'password';
-          icon.classList.remove('text-color-brands');
+          if (icon) icon.style.opacity = '1';
         }
       });
     });
 
     // Инициализация валидации
     validatePassword();
+    
+    // Показываем требования если есть ошибка или поле не пустое
+    const passwordField = document.getElementById('password1');
+    if (passwordField && passwordField.value) {
+      showPasswordRequirements();
+    }
   });
 </script>
 

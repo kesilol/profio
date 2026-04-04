@@ -1,11 +1,14 @@
 <?php
 session_start();
 require('../connect.php');
+require_once(__DIR__ . '/admin_logs_handler.php');
 
 // Проверка прав администратора
 if ($_SESSION['user']['role'] !== 'администратор') {
     die("Access denied");
 }
+
+$admin_id = $_SESSION['user']['id'] ?? $_SESSION['user']['id_user'] ?? null;
 
 // Обработка профессий
 if (isset($_POST['title']) && isset($_POST['description']) && isset($_POST['category'])) {
@@ -20,6 +23,9 @@ if (isset($_POST['title']) && isset($_POST['description']) && isset($_POST['cate
         $education_level = $_POST['education_level'];
         $demand_level = $_POST['demand_level'];
         $category = $_POST['category'];
+        
+        // Получаем старые данные для лога
+        $old_profession = $link->query("SELECT * FROM professions WHERE id = $id")->fetch_assoc();
 
         $stmt = $link->prepare("UPDATE professions SET title=?, description=?, required_skills=?, salary_range=?, education_level=?, demand_level=?, category=? WHERE id=?");
         $stmt->bind_param("sssssssi", $title, $description, $required_skills, $salary_range, $education_level, $demand_level, $category, $id);
@@ -50,6 +56,8 @@ if (isset($_POST['title']) && isset($_POST['description']) && isset($_POST['cate
                 $insert_stmt->execute();
             }
 
+            logAdminAction($admin_id, 'Редактирование профессии', 'profession', $id, 
+                "Изменена профессия: '{$old_profession['title']}' → '{$title}'");
             $_SESSION['success'] = "Профессия успешно обновлена";
         } else {
             $_SESSION['error'] = "Ошибка при обновлении профессии: " . $stmt->error;
@@ -81,6 +89,8 @@ if (isset($_POST['title']) && isset($_POST['description']) && isset($_POST['cate
             $detail_stmt->bind_param("isssss", $profession_id, $responsibilities, $career_growth, $employment_prospects, $related_courses, $image_url);
             $detail_stmt->execute();
 
+            logAdminAction($admin_id, 'Создание профессии', 'profession', $profession_id, 
+                "Создана профессия: '{$title}' (категория: {$category}, зарплата: {$salary_range})");
             $_SESSION['success'] = "Профессия успешно добавлена";
         } else {
             $_SESSION['error'] = "Ошибка при добавлении профессии: " . $stmt->error;
@@ -93,6 +103,9 @@ if (isset($_POST['title']) && isset($_POST['description']) && isset($_POST['cate
 // Удаление профессии
 if (isset($_GET['delete_profession'])) {
     $id = $_GET['delete_profession'];
+    
+    // Получаем информацию о профессии
+    $profession_info = $link->query("SELECT title FROM professions WHERE id = $id")->fetch_assoc();
 
     // Проверяем, есть ли связанные записи
     $check_stmt = $link->prepare("SELECT COUNT(*) as count FROM recommendations WHERE profession_id = ?");
@@ -101,6 +114,8 @@ if (isset($_GET['delete_profession'])) {
     $result = $check_stmt->get_result()->fetch_assoc();
 
     if ($result['count'] > 0) {
+        logAdminAction($admin_id, 'Попытка удаления профессии', 'profession', $id, 
+            "Попытка удалить профессию: '{$profession_info['title']}' - ОТКАЗАНО (есть связанные рекомендации)");
         $_SESSION['error'] = "Невозможно удалить профессию, так как с ней связаны рекомендации";
     } else {
         // Удаляем связанные записи
@@ -108,11 +123,15 @@ if (isset($_GET['delete_profession'])) {
         $link->query("DELETE FROM profession_companies WHERE profession_id = $id");
         $link->query("DELETE FROM profession_institutions WHERE profession_id = $id");
         $link->query("DELETE FROM plan_professions WHERE profession_id = $id");
+        $link->query("DELETE FROM mbti_profession_relations WHERE profession_id = $id");
+        $link->query("DELETE FROM holland_profession_relations WHERE profession_id = $id");
         
         $stmt = $link->prepare("DELETE FROM professions WHERE id = ?");
         $stmt->bind_param("i", $id);
         
         if ($stmt->execute()) {
+            logAdminAction($admin_id, 'Удаление профессии', 'profession', $id, 
+                "Удалена профессия: '{$profession_info['title']}'");
             $_SESSION['success'] = "Профессия успешно удалена";
         } else {
             $_SESSION['error'] = "Ошибка при удалении профессии";

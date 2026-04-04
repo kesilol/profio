@@ -137,21 +137,21 @@ if (isset($_GET['profession_id'])) {
                                     <span class="font-semibold"><?= $prof['recommendations_count'] ?></span>
                                 </td>
                                 <td class="p-3">
-                                    <div class="flex gap-2">
+                                    <div class="flex gap-2 flex-wrap">
                                         <a href="index.php?page=profession-detail&id=<?= $prof['id'] ?>"
-                                            class="btn bg-blue-500 text-white px-3 py-1 rounded text-sm">
+                                            class="btn bg-blue-500 text-white px-3 py-1 rounded text-sm whitespace-nowrap">
                                             <i class="bi bi-eye"></i> Просмотр
                                         </a>
                                         <button onclick="manageProfessionConnections(<?= $prof['id'] ?>, '<?= htmlspecialchars(addslashes($prof['title'])) ?>')"
-                                            class="btn bg-purple-500 text-white px-3 py-1 rounded text-sm">
+                                            class="btn bg-purple-500 text-white px-3 py-1 rounded text-sm whitespace-nowrap">
                                             <i class="bi bi-link"></i> Связи
                                         </button>
                                         <button onclick="editProfession(<?= $prof['id'] ?>)"
-                                            class="btn bg-green-500 text-white px-3 py-1 rounded text-sm">
+                                            class="btn bg-green-500 text-white px-3 py-1 rounded text-sm whitespace-nowrap">
                                             <i class="bi bi-pencil"></i> Редактировать
                                         </button>
                                         <a href="event_user/admin_professions_handler.php?delete_profession=<?= $prof['id'] ?>"
-                                            class="btn bg-red-500 text-white px-3 py-1 rounded text-sm"
+                                            class="btn bg-red-500 text-white px-3 py-1 rounded text-sm whitespace-nowrap"
                                             onclick="return confirm('Удалить профессию <?= htmlspecialchars(addslashes($prof['title'])) ?>?')">
                                             <i class="bi bi-trash"></i> Удалить
                                         </a>
@@ -276,227 +276,227 @@ if (isset($_GET['profession_id'])) {
 </div>
 
 <script>
-// Глобальные переменные для управления вкладками
-let currentActiveTab = 'companies-tab';
-let currentProfessionId = null;
+    // Глобальные переменные для управления вкладками
+    let currentActiveTab = 'companies-tab';
+    let currentProfessionId = null;
 
-// Управление связями профессии
-function manageProfessionConnections(professionId, professionTitle) {
-    currentProfessionId = professionId;
-    document.getElementById('connectionsModalTitle').textContent = 'Управление связями: ' + professionTitle;
+    // Управление связями профессии
+    function manageProfessionConnections(professionId, professionTitle) {
+        currentProfessionId = professionId;
+        document.getElementById('connectionsModalTitle').textContent = 'Управление связями: ' + professionTitle;
 
-    // Загружаем контент через AJAX
-    fetch(`event_user/get_profession_connections.php?id=${professionId}`)
-        .then(response => response.text())
-        .then(html => {
-            document.getElementById('connectionsContent').innerHTML = html;
-            document.getElementById('professionConnectionsModal').style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-            
-            // Активируем сохраненную вкладку после загрузки
-            setTimeout(() => {
-                activateTab(currentActiveTab);
-            }, 100);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Ошибка загрузки данных связей');
-        });
-}
-
-// Функция переключения вкладок
-function switchTab(tabName) {
-    currentActiveTab = tabName;
-    
-    // Скрыть все вкладки
-    const tabContents = document.querySelectorAll('.tab-content');
-    tabContents.forEach(tab => {
-        tab.style.display = 'none';
-    });
-    
-    // Убрать активный класс со всех кнопок
-    const tabButtons = document.querySelectorAll('.tab-button');
-    tabButtons.forEach(button => {
-        button.style.borderBottom = 'none';
-        button.classList.remove('active');
-    });
-    
-    // Показать выбранную вкладку
-    const activeTab = document.getElementById(tabName);
-    if (activeTab) {
-        activeTab.style.display = 'block';
-    }
-    
-    // Добавить активный класс к выбранной кнопке
-    const activeButton = document.querySelector(`[onclick="switchTab('${tabName}')"]`);
-    if (activeButton) {
-        activeButton.style.borderBottom = '2px solid #3b82f6';
-        activeButton.classList.add('active');
-    }
-}
-
-// Активация конкретной вкладки
-function activateTab(tabName) {
-    const button = document.querySelector(`[onclick="switchTab('${tabName}')"]`);
-    if (button) {
-        button.click();
-    }
-}
-
-// Добавление связи с компанией
-function addCompanyConnection(professionId) {
-    const companyId = document.getElementById('companySelect').value;
-    const positionName = document.getElementById('positionName').value;
-    const experienceLevel = document.getElementById('experienceLevel').value;
-    
-    if (!companyId || !positionName) {
-        alert('Заполните все обязательные поля');
-        return;
-    }
-    
-    const formData = new FormData();
-    formData.append('add_company_connection', '1');
-    formData.append('profession_id', professionId);
-    formData.append('company_id', companyId);
-    formData.append('position_name', positionName);
-    formData.append('experience_level', experienceLevel);
-    
-    fetch('event_user/profession_connections.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Сохраняем текущую вкладку
-            const activeTab = currentActiveTab;
-            // Обновляем содержимое модального окна
-            manageProfessionConnections(professionId, document.getElementById('connectionsModalTitle').textContent.replace('Управление связями: ', ''));
-            // Восстанавливаем активную вкладку
-            setTimeout(() => {
-                activateTab(activeTab);
-            }, 150);
-            alert(data.message || 'Связь успешно добавлена');
-        } else {
-            alert(data.error || 'Ошибка при добавлении связи');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Ошибка при добавлении связи');
-    });
-}
-
-// Добавление связи с учебным заведением
-function addInstitutionConnection(professionId) {
-    const institutionId = document.getElementById('institutionSelect').value;
-    const programName = document.getElementById('programName').value;
-    const duration = document.getElementById('programDuration').value;
-    const cost = document.getElementById('programCost').value;
-    
-    if (!institutionId || !programName) {
-        alert('Заполните все обязательные поля');
-        return;
-    }
-    
-    const formData = new FormData();
-    formData.append('add_institution_connection', '1');
-    formData.append('profession_id', professionId);
-    formData.append('institution_id', institutionId);
-    formData.append('program_name', programName);
-    formData.append('duration', duration);
-    formData.append('cost', cost);
-    
-    fetch('event_user/profession_connections.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Сохраняем текущую вкладку как "учебные заведения"
-            currentActiveTab = 'institutions-tab';
-            // Обновляем содержимое модального окна
-            manageProfessionConnections(professionId, document.getElementById('connectionsModalTitle').textContent.replace('Управление связями: ', ''));
-            alert(data.message || 'Связь успешно добавлена');
-        } else {
-            alert(data.error || 'Ошибка при добавлении связи');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Ошибка при добавлении связи');
-    });
-}
-
-// Профессии
-function openAddProfessionModal() {
-    document.getElementById('professionModalTitle').textContent = 'Добавить профессию';
-    document.getElementById('professionSubmitBtn').textContent = 'Добавить';
-    document.getElementById('professionId').value = '';
-    document.getElementById('professionForm').reset();
-    document.getElementById('professionModal').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-}
-
-function editProfession(professionId) {
-    // AJAX запрос для получения данных профессии
-    fetch(`event_user/get_profession_data.php?id=${professionId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                document.getElementById('professionModalTitle').textContent = 'Редактировать профессию';
-                document.getElementById('professionSubmitBtn').textContent = 'Сохранить';
-                document.getElementById('professionId').value = data.id;
-                document.getElementById('professionTitle').value = data.title;
-                document.getElementById('professionDescription').value = data.description;
-                document.getElementById('professionSkills').value = data.required_skills;
-                document.getElementById('professionSalary').value = data.salary_range;
-                document.getElementById('professionEducation').value = data.education_level;
-                document.getElementById('professionDemand').value = data.demand_level;
-                document.getElementById('professionCategory').value = data.category;
-
-                // Заполняем дополнительные поля если есть
-                if (data.details) {
-                    document.getElementById('professionResponsibilities').value = data.details.responsibilities || '';
-                    document.getElementById('professionCareer').value = data.details.career_growth || '';
-                    document.getElementById('professionProspects').value = data.details.employment_prospects || '';
-                    document.getElementById('professionCourses').value = data.details.related_courses || '';
-                    document.getElementById('professionImage').value = data.details.image_url || '';
-                }
-
-                document.getElementById('professionModal').style.display = 'flex';
+        // Загружаем контент через AJAX
+        fetch(`event_user/get_profession_connections.php?id=${professionId}`)
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('connectionsContent').innerHTML = html;
+                document.getElementById('professionConnectionsModal').style.display = 'flex';
                 document.body.style.overflow = 'hidden';
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Ошибка загрузки данных профессии');
+
+                // Активируем сохраненную вкладку после загрузки
+                setTimeout(() => {
+                    activateTab(currentActiveTab);
+                }, 100);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ошибка загрузки данных связей');
+            });
+    }
+
+    // Функция переключения вкладок
+    function switchTab(tabName) {
+        currentActiveTab = tabName;
+
+        // Скрыть все вкладки
+        const tabContents = document.querySelectorAll('.tab-content');
+        tabContents.forEach(tab => {
+            tab.style.display = 'none';
         });
-}
 
-function closeModal(modalId) {
-    document.getElementById(modalId).style.display = 'none';
-    document.body.style.overflow = 'auto';
-    // Сбрасываем активную вкладку при закрытии
-    if (modalId === 'professionConnectionsModal') {
-        currentActiveTab = 'companies-tab';
+        // Убрать активный класс со всех кнопок
+        const tabButtons = document.querySelectorAll('.tab-button');
+        tabButtons.forEach(button => {
+            button.style.borderBottom = 'none';
+            button.classList.remove('active');
+        });
+
+        // Показать выбранную вкладку
+        const activeTab = document.getElementById(tabName);
+        if (activeTab) {
+            activeTab.style.display = 'block';
+        }
+
+        // Добавить активный класс к выбранной кнопке
+        const activeButton = document.querySelector(`[onclick="switchTab('${tabName}')"]`);
+        if (activeButton) {
+            activeButton.style.borderBottom = '2px solid #3b82f6';
+            activeButton.classList.add('active');
+        }
     }
-}
 
-// Закрытие модальных окон
-document.getElementById('professionModal').addEventListener('click', function(e) {
-    if (e.target === this) closeModal('professionModal');
-});
-
-document.getElementById('professionConnectionsModal').addEventListener('click', function(e) {
-    if (e.target === this) closeModal('professionConnectionsModal');
-});
-
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        if (document.getElementById('professionModal').style.display === 'flex') closeModal('professionModal');
-        if (document.getElementById('professionConnectionsModal').style.display === 'flex') closeModal('professionConnectionsModal');
+    // Активация конкретной вкладки
+    function activateTab(tabName) {
+        const button = document.querySelector(`[onclick="switchTab('${tabName}')"]`);
+        if (button) {
+            button.click();
+        }
     }
-});
+
+    // Добавление связи с компанией
+    function addCompanyConnection(professionId) {
+        const companyId = document.getElementById('companySelect').value;
+        const positionName = document.getElementById('positionName').value;
+        const experienceLevel = document.getElementById('experienceLevel').value;
+
+        if (!companyId || !positionName) {
+            alert('Заполните все обязательные поля');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('add_company_connection', '1');
+        formData.append('profession_id', professionId);
+        formData.append('company_id', companyId);
+        formData.append('position_name', positionName);
+        formData.append('experience_level', experienceLevel);
+
+        fetch('event_user/profession_connections.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Сохраняем текущую вкладку
+                    const activeTab = currentActiveTab;
+                    // Обновляем содержимое модального окна
+                    manageProfessionConnections(professionId, document.getElementById('connectionsModalTitle').textContent.replace('Управление связями: ', ''));
+                    // Восстанавливаем активную вкладку
+                    setTimeout(() => {
+                        activateTab(activeTab);
+                    }, 150);
+                    alert(data.message || 'Связь успешно добавлена');
+                } else {
+                    alert(data.error || 'Ошибка при добавлении связи');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ошибка при добавлении связи');
+            });
+    }
+
+    // Добавление связи с учебным заведением
+    function addInstitutionConnection(professionId) {
+        const institutionId = document.getElementById('institutionSelect').value;
+        const programName = document.getElementById('programName').value;
+        const duration = document.getElementById('programDuration').value;
+        const cost = document.getElementById('programCost').value;
+
+        if (!institutionId || !programName) {
+            alert('Заполните все обязательные поля');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('add_institution_connection', '1');
+        formData.append('profession_id', professionId);
+        formData.append('institution_id', institutionId);
+        formData.append('program_name', programName);
+        formData.append('duration', duration);
+        formData.append('cost', cost);
+
+        fetch('event_user/profession_connections.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Сохраняем текущую вкладку как "учебные заведения"
+                    currentActiveTab = 'institutions-tab';
+                    // Обновляем содержимое модального окна
+                    manageProfessionConnections(professionId, document.getElementById('connectionsModalTitle').textContent.replace('Управление связями: ', ''));
+                    alert(data.message || 'Связь успешно добавлена');
+                } else {
+                    alert(data.error || 'Ошибка при добавлении связи');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ошибка при добавлении связи');
+            });
+    }
+
+    // Профессии
+    function openAddProfessionModal() {
+        document.getElementById('professionModalTitle').textContent = 'Добавить профессию';
+        document.getElementById('professionSubmitBtn').textContent = 'Добавить';
+        document.getElementById('professionId').value = '';
+        document.getElementById('professionForm').reset();
+        document.getElementById('professionModal').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function editProfession(professionId) {
+        // AJAX запрос для получения данных профессии
+        fetch(`event_user/get_profession_data.php?id=${professionId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('professionModalTitle').textContent = 'Редактировать профессию';
+                    document.getElementById('professionSubmitBtn').textContent = 'Сохранить';
+                    document.getElementById('professionId').value = data.id;
+                    document.getElementById('professionTitle').value = data.title;
+                    document.getElementById('professionDescription').value = data.description;
+                    document.getElementById('professionSkills').value = data.required_skills;
+                    document.getElementById('professionSalary').value = data.salary_range;
+                    document.getElementById('professionEducation').value = data.education_level;
+                    document.getElementById('professionDemand').value = data.demand_level;
+                    document.getElementById('professionCategory').value = data.category;
+
+                    // Заполняем дополнительные поля если есть
+                    if (data.details) {
+                        document.getElementById('professionResponsibilities').value = data.details.responsibilities || '';
+                        document.getElementById('professionCareer').value = data.details.career_growth || '';
+                        document.getElementById('professionProspects').value = data.details.employment_prospects || '';
+                        document.getElementById('professionCourses').value = data.details.related_courses || '';
+                        document.getElementById('professionImage').value = data.details.image_url || '';
+                    }
+
+                    document.getElementById('professionModal').style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ошибка загрузки данных профессии');
+            });
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+        document.body.style.overflow = 'auto';
+        // Сбрасываем активную вкладку при закрытии
+        if (modalId === 'professionConnectionsModal') {
+            currentActiveTab = 'companies-tab';
+        }
+    }
+
+    // Закрытие модальных окон
+    document.getElementById('professionModal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal('professionModal');
+    });
+
+    document.getElementById('professionConnectionsModal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal('professionConnectionsModal');
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            if (document.getElementById('professionModal').style.display === 'flex') closeModal('professionModal');
+            if (document.getElementById('professionConnectionsModal').style.display === 'flex') closeModal('professionConnectionsModal');
+        }
+    });
 </script>

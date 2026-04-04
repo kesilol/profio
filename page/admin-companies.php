@@ -77,17 +77,17 @@ $institutions = $link->query("SELECT * FROM educational_institutions ORDER BY na
                                     <?= $company['location'] ?>
                                 </td>
                                 <td class="p-3">
-                                    <div class="flex gap-2">
+                                    <div class="flex gap-2 flex-wrap">
                                         <button onclick="viewCompanyConnections(<?= $company['id'] ?>, '<?= htmlspecialchars(addslashes($company['name'])) ?>')"
-                                            class="btn bg-purple-500 text-white px-3 py-1 rounded text-sm">
+                                            class="btn bg-purple-500 text-white px-3 py-1 rounded text-sm whitespace-nowrap">
                                             <i class="bi bi-eye"></i> Профессии
                                         </button>
                                         <button onclick="editCompany(<?= $company['id'] ?>)"
-                                            class="btn bg-blue-500 text-white px-3 py-1 rounded text-sm">
+                                            class="btn bg-blue-500 text-white px-3 py-1 rounded text-sm whitespace-nowrap">
                                             <i class="bi bi-pencil"></i> Редактировать
                                         </button>
                                         <a href="event_user/admin_companies_handler.php?delete_company=<?= $company['id'] ?>"
-                                            class="btn bg-red-500 text-white px-3 py-1 rounded text-sm"
+                                            class="btn bg-red-500 text-white px-3 py-1 rounded text-sm whitespace-nowrap"
                                             onclick="return confirm('Удалить компанию <?= htmlspecialchars(addslashes($company['name'])) ?>?')">
                                             <i class="bi bi-trash"></i> Удалить
                                         </a>
@@ -137,17 +137,17 @@ $institutions = $link->query("SELECT * FROM educational_institutions ORDER BY na
                                     <?= $institution['location'] ?>
                                 </td>
                                 <td class="p-3">
-                                    <div class="flex gap-2">
+                                    <div class="flex gap-2 flex-wrap">
                                         <button onclick="viewInstitutionConnections(<?= $institution['id'] ?>, '<?= htmlspecialchars(addslashes($institution['name'])) ?>')"
-                                            class="btn bg-purple-500 text-white px-3 py-1 rounded text-sm">
+                                            class="btn bg-purple-500 text-white px-3 py-1 rounded text-sm whitespace-nowrap">
                                             <i class="bi bi-eye"></i> Профессии
                                         </button>
                                         <button onclick="editInstitution(<?= $institution['id'] ?>)"
-                                            class="btn bg-blue-500 text-white px-3 py-1 rounded text-sm">
+                                            class="btn bg-blue-500 text-white px-3 py-1 rounded text-sm whitespace-nowrap">
                                             <i class="bi bi-pencil"></i> Редактировать
                                         </button>
                                         <a href="event_user/admin_companies_handler.php?delete_institution=<?= $institution['id'] ?>"
-                                            class="btn bg-red-500 text-white px-3 py-1 rounded text-sm"
+                                            class="btn bg-red-500 text-white px-3 py-1 rounded text-sm whitespace-nowrap"
                                             onclick="return confirm('Удалить учебное заведение <?= htmlspecialchars(addslashes($institution['name'])) ?>?')">
                                             <i class="bi bi-trash"></i> Удалить
                                         </a>

@@ -5,11 +5,20 @@ if (!isset($_SESSION['user'])) {
     exit();
 }
 
+// Получаем ID типа MBTI для проверки
+$mbti_type_result = $link->query("SELECT id FROM test_types WHERE name = 'mbti'")->fetch_assoc();
+$mbti_type_id = $mbti_type_result ? $mbti_type_result['id'] : 0;
+
+// Получаем ID типа Голланда для проверки
+$holland_type_result = $link->query("SELECT id FROM test_types WHERE name = 'голланд'")->fetch_assoc();
+$holland_type_id = $holland_type_result ? $holland_type_result['id'] : 0;
+
 // Получаем список тестов из БД с JOIN к типам
 $tests = $link->query("
     SELECT t.*, tt.name as type_name 
     FROM tests t 
     LEFT JOIN test_types tt ON t.test_type_id = tt.id
+    ORDER BY t.id
 ");
 
 // Получаем информацию о методиках из БД
@@ -43,9 +52,24 @@ $methodologies = $link->query("
                 $available_tests = [];
                 
                 while ($test = $tests->fetch_assoc()): 
+                    // Проверяем тип теста
+                    $is_mbti = ($test['test_type_id'] == $mbti_type_id) || 
+                               stripos($test['title'], 'MBTI') !== false ||
+                               stripos($test['type_name'], 'mbti') !== false;
+                    
+                    $is_holland = ($test['test_type_id'] == $holland_type_id) || 
+                                  stripos($test['title'], 'Голланда') !== false ||
+                                  stripos($test['type_name'], 'голланд') !== false;
+                    
                     // Проверяем, есть ли вопросы у теста
-                    $questions_count = $link->query("SELECT COUNT(*) as count FROM questions WHERE test_id = '{$test['id']}'")->fetch_assoc()['count'];
-                    $is_available = $questions_count > 0;
+                    if ($is_mbti) {
+                        // MBTI тест всегда доступен (вопросы не хранятся в БД)
+                        $questions_count = 60;
+                        $is_available = true;
+                    } else {
+                        $questions_count = $link->query("SELECT COUNT(*) as count FROM questions WHERE test_id = '{$test['id']}'")->fetch_assoc()['count'];
+                        $is_available = $questions_count > 0;
+                    }
                     
                     // Сохраняем информацию о доступных тестах для статистики
                     if ($is_available) {
@@ -106,7 +130,15 @@ $methodologies = $link->query("
                         </div>
 
                         <?php if ($is_available): ?>
-                            <a href="index.php?page=test&id=<?php echo $test['id']; ?>"
+                            <a href="<?php 
+                                if ($is_mbti) {
+                                    echo 'index.php?page=mbti';
+                                } elseif ($is_holland) {
+                                    echo "index.php?page=test&id={$test['id']}";
+                                } else {
+                                    echo "index.php?page=test&id={$test['id']}";
+                                }
+                            ?>"
                                 class="btn bg-color-brands text-white w-full text-center py-3 mt-auto hover:bg-color-brands/90 transition-colors">
                                 <?php echo $is_passed ? 'Пройти снова' : 'Начать тест'; ?>
                             </a>
@@ -149,13 +181,17 @@ $methodologies = $link->query("
         $user_id = $_SESSION['user']['id_user'];
         
         // 1. Считаем УНИКАЛЬНЫЕ пройденные тесты (DISTINCT)
-        $passed_query = $link->query("
-            SELECT COUNT(DISTINCT test_id) as count 
-            FROM test_results 
-            WHERE user_id = '$user_id' 
-            AND test_id IN (" . (count($available_tests) > 0 ? implode(',', $available_tests) : '0') . ")
-        ");
-        $passed_tests = $passed_query->fetch_assoc()['count'];
+        if (count($available_tests) > 0) {
+            $passed_query = $link->query("
+                SELECT COUNT(DISTINCT test_id) as count 
+                FROM test_results 
+                WHERE user_id = '$user_id' 
+                AND test_id IN (" . implode(',', $available_tests) . ")
+            ");
+            $passed_tests = $passed_query->fetch_assoc()['count'];
+        } else {
+            $passed_tests = 0;
+        }
         
         // 2. Всего доступных тестов (с вопросами)
         $total_tests = count($available_tests);
@@ -172,7 +208,6 @@ $methodologies = $link->query("
                 <div class="text-center">
                     <div class="text-2xl font-bold text-color-brands"><?php echo $passed_tests; ?></div>
                     <div class="text-sm text-gray-500 dark:text-gray-dark-500">Пройдено тестов</div>
-                    <div class="text-xs text-gray-400 dark:text-gray-dark-400 mt-1">(уникальных)</div>
                 </div>
                 <div class="text-center">
                     <div class="text-2xl font-bold text-gray-1100 dark:text-gray-dark-1100"><?php echo $total_tests; ?></div>

@@ -8,12 +8,19 @@ if (!isset($_SESSION['user'])) {
 
 $user_id = $_SESSION['user']['id'] ?? $_SESSION['user']['id_user'] ?? null;
 
+// Проверяем, что ID пользователя получен
+if (!$user_id) {
+    echo "<div class='text-center py-10'><p class='text-red-500'>Ошибка: не удалось определить пользователя</p></div>";
+    exit();
+}
+
 // Подключаемся к базе
 require_once('connect.php');
 require_once('event_user/education_handler.php');
 require_once('event_user/companies_handler.php');
 
-// Получаем рекомендации пользователя из базы
+// Получаем уникальные рекомендации пользователя (без дубликатов профессий)
+// Для каждой профессии берем только одну запись с максимальным процентом
 $recommendations_query = "
     SELECT r.*, p.title as profession_title, p.description as profession_description,
            p.category, p.salary_range, p.demand_level,
@@ -22,10 +29,23 @@ $recommendations_query = "
     LEFT JOIN professions p ON r.profession_id = p.id 
     LEFT JOIN profession_details pd ON p.id = pd.profession_id
     WHERE r.user_id = ? 
+    AND r.id = (
+        SELECT r2.id
+        FROM recommendations r2
+        WHERE r2.user_id = r.user_id 
+        AND r2.profession_id = r.profession_id
+        ORDER BY r2.match_percentage DESC, r2.id DESC
+        LIMIT 1
+    )
     ORDER BY r.match_percentage DESC
 ";
 
 $stmt = $link->prepare($recommendations_query);
+if (!$stmt) {
+    echo "<div class='text-center py-10'><p class='text-red-500'>Ошибка подготовки запроса: " . $link->error . "</p></div>";
+    exit();
+}
+
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $recommendations = $stmt->get_result();
@@ -144,20 +164,20 @@ $recommendations_count = $recommendations ? $recommendations->num_rows : 0;
                                 <!-- ВУЗы (первые 2) -->
                                 <?php if ($institutions && $institutions->num_rows > 0): ?>
                                     <div class="mb-4">
-                                    <p class="text-sm text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-2">
+                                        <p class="text-sm text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-2">
                                             <i class="bi bi-mortarboard text-color-brands"></i>
                                             <strong>Где учиться:</strong>
                                         </p>
                                         <div class="flex flex-wrap gap-2">
                                             <?php 
                                             $count = 0;
-                                            $institutions->data_seek(0); // Сбрасываем указатель
+                                            $institutions->data_seek(0);
                                             while ($institution = $institutions->fetch_assoc()): 
                                                 if ($count >= 2) break;
                                                 $count++;
                                             ?>
                                                 <span class="text-xs px-3 py-1 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                                                    <?php echo $institution['name']; ?>
+                                                    <?php echo htmlspecialchars($institution['name']); ?>
                                                 </span>
                                             <?php endwhile; ?>
                                             <?php if ($institutions->num_rows > 2): ?>
@@ -172,20 +192,20 @@ $recommendations_count = $recommendations ? $recommendations->num_rows : 0;
                                 <!-- Компании (первые 2) -->
                                 <?php if ($companies && $companies->num_rows > 0): ?>
                                     <div class="mb-4">
-                                    <p class="text-sm text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-2">
+                                        <p class="text-sm text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-2">
                                             <i class="bi bi-briefcase text-color-brands"></i>
                                             <strong>Где работать:</strong>
                                         </p>
                                         <div class="flex flex-wrap gap-2">
                                             <?php 
                                             $count = 0;
-                                            $companies->data_seek(0); // Сбрасываем указатель
+                                            $companies->data_seek(0);
                                             while ($company = $companies->fetch_assoc()): 
                                                 if ($count >= 2) break;
                                                 $count++;
                                             ?>
                                                 <span class="text-xs px-3 py-1 rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                                                    <?php echo $company['name']; ?>
+                                                    <?php echo htmlspecialchars($company['name']); ?>
                                                 </span>
                                             <?php endwhile; ?>
                                             <?php if ($companies->num_rows > 2): ?>
@@ -249,8 +269,9 @@ $recommendations_count = $recommendations ? $recommendations->num_rows : 0;
                         $recommendations->data_seek(0);
                         $max_match = 0;
                         while($rec = $recommendations->fetch_assoc()) {
-                            if ($rec['match_percentage'] > $max_match) {
-                                $max_match = $rec['match_percentage'];
+                            $current_match = $rec['match_percentage'] ?? 0;
+                            if ($current_match > $max_match) {
+                                $max_match = $current_match;
                             }
                         }
                         ?>

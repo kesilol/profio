@@ -36,6 +36,7 @@ $profession_companies_stmt = $link->prepare("
     FROM profession_companies pc 
     LEFT JOIN companies c ON pc.company_id = c.id 
     WHERE pc.profession_id = ?
+    ORDER BY c.name ASC
 ");
 $profession_companies_stmt->bind_param("i", $profession_id);
 $profession_companies_stmt->execute();
@@ -58,6 +59,7 @@ $profession_institutions_stmt = $link->prepare("
     FROM profession_institutions pi 
     LEFT JOIN educational_institutions i ON pi.institution_id = i.id 
     WHERE pi.profession_id = ?
+    ORDER BY i.name ASC
 ");
 $profession_institutions_stmt->bind_param("i", $profession_id);
 $profession_institutions_stmt->execute();
@@ -66,6 +68,15 @@ $profession_institutions = [];
 while($row = $profession_institutions_result->fetch_assoc()) {
     $profession_institutions[] = $row;
 }
+
+// Уровни опыта для отображения
+$experience_levels = [
+    'стажер' => 'Стажер',
+    'junior' => 'Junior',
+    'middle' => 'Middle',
+    'senior' => 'Senior',
+    'lead' => 'Lead'
+];
 ?>
 
 <!-- HTML контент для модального окна -->
@@ -75,6 +86,7 @@ while($row = $profession_institutions_result->fetch_assoc()) {
         <button class="tab-button" onclick="switchTab('institutions-tab')" style="padding: 10px 15px; border: none; background: none; cursor: pointer;">Учебные заведения</button>
     </div>
     
+    <!-- Вкладка Компании -->
     <div id="companies-tab" class="tab-content">
         <h4 style="margin-bottom: 15px;">Связи с компаниями</h4>
         
@@ -127,22 +139,23 @@ while($row = $profession_institutions_result->fetch_assoc()) {
                         <tr>
                             <td style="padding: 8px; border: 1px solid #ddd;"><?= htmlspecialchars($connection['company_name']) ?></td>
                             <td style="padding: 8px; border: 1px solid #ddd;"><?= htmlspecialchars($connection['position_name']) ?></td>
-                            <td style="padding: 8px; border: 1px solid #ddd;"><?= $connection['experience_level'] ?></td>
+                            <td style="padding: 8px; border: 1px solid #ddd;"><?= $experience_levels[$connection['experience_level']] ?? $connection['experience_level'] ?></td>
                             <td style="padding: 8px; border: 1px solid #ddd;">
                                 <a href="event_user/profession_connections.php?delete_company_connection=<?= $connection['id'] ?>&profession_id=<?= $profession_id ?>" 
-                                   onclick="return confirm('Удалить связь?')" 
-                                   style="color: #dc3545; text-decoration: none;">Удалить</a>
+                                   onclick="return confirm('Удалить связь с компанией <?= htmlspecialchars($connection['company_name']) ?>?')" 
+                                   style="color: #dc3545; text-decoration: none;">🗑️ Удалить</a>
                             </td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
             <?php else: ?>
-                <p style="color: #6c757d;">Нет связей с компаниями</p>
+                <p style="color: #6c757d; text-align: center; padding: 20px;">Нет связей с компаниями</p>
             <?php endif; ?>
         </div>
     </div>
     
+    <!-- Вкладка Учебные заведения -->
     <div id="institutions-tab" class="tab-content" style="display: none;">
         <h4 style="margin-bottom: 15px;">Связи с учебными заведениями</h4>
         
@@ -184,7 +197,7 @@ while($row = $profession_institutions_result->fetch_assoc()) {
                         <tr style="background: #f8f9fa;">
                             <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Учебное заведение</th>
                             <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Программа</th>
-                            <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Продолжительность</th>
+                            <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Срок</th>
                             <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Стоимость</th>
                             <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Действия</th>
                         </tr>
@@ -194,19 +207,19 @@ while($row = $profession_institutions_result->fetch_assoc()) {
                         <tr>
                             <td style="padding: 8px; border: 1px solid #ddd;"><?= htmlspecialchars($connection['institution_name']) ?></td>
                             <td style="padding: 8px; border: 1px solid #ddd;"><?= htmlspecialchars($connection['program_name']) ?></td>
-                            <td style="padding: 8px; border: 1px solid #ddd;"><?= $connection['duration'] ?></td>
-                            <td style="padding: 8px; border: 1px solid #ddd;"><?= $connection['cost'] ?></td>
+                            <td style="padding: 8px; border: 1px solid #ddd;"><?= htmlspecialchars($connection['duration']) ?></td>
+                            <td style="padding: 8px; border: 1px solid #ddd;"><?= htmlspecialchars($connection['cost']) ?></td>
                             <td style="padding: 8px; border: 1px solid #ddd;">
                                 <a href="event_user/profession_connections.php?delete_institution_connection=<?= $connection['id'] ?>&profession_id=<?= $profession_id ?>" 
-                                   onclick="return confirm('Удалить связь?')" 
-                                   style="color: #dc3545; text-decoration: none;">Удалить</a>
+                                   onclick="return confirm('Удалить связь с учебным заведением <?= htmlspecialchars($connection['institution_name']) ?>?')" 
+                                   style="color: #dc3545; text-decoration: none;">🗑️ Удалить</a>
                             </td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
             <?php else: ?>
-                <p style="color: #6c757d;">Нет связей с учебными заведениями</p>
+                <p style="color: #6c757d; text-align: center; padding: 20px;">Нет связей с учебными заведениями</p>
             <?php endif; ?>
         </div>
     </div>
@@ -222,12 +235,18 @@ function switchTab(tabName) {
     // Убрать активный класс со всех кнопок
     document.querySelectorAll('.tab-button').forEach(button => {
         button.style.borderBottom = 'none';
+        button.style.borderBottom = '';
     });
     
     // Показать выбранную вкладку
     document.getElementById(tabName).style.display = 'block';
     
     // Добавить активный класс к выбранной кнопке
-    event.target.style.borderBottom = '2px solid #3b82f6';
+    const activeButton = Array.from(document.querySelectorAll('.tab-button')).find(
+        button => button.getAttribute('onclick')?.includes(tabName)
+    );
+    if (activeButton) {
+        activeButton.style.borderBottom = '2px solid #3b82f6';
+    }
 }
 </script>

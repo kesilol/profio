@@ -1,5 +1,9 @@
 <form class="rounded-2xl bg-white mx-auto p-10 text-center max-w-[440px] my-[84px] dark:bg-[#1F2128]" action="event_user/login.php" method="POST">
-  <div class="mb-4 text-center mx-auto"><img class="inline-block" src="assets/images/icons/icon-landing-success-1.svg" alt="landing success"></div>
+  <div class="mb-4 text-center mx-auto">
+    <a href="index.php" class="inline-block hover:opacity-80 transition-opacity">
+      <img class="inline-block" src="assets/images/icons/icon-landing-success-1.svg" alt="landing success">
+    </a>
+  </div>
   <h3 class="font-bold text-2xl text-gray-1100 capitalize mb-[5px] dark:text-gray-dark-1100">Добро пожаловать!</h3>
   <p class="text-sm text-gray-500 mb-[30px] dark:text-gray-dark-500">Давай узнаем, какая профессия тебе подходит!</p>
 
@@ -31,7 +35,16 @@
     </div>
   </div>
   <button class="btn normal-case h-fit min-h-fit transition-all duration-300 border-4 w-full border-neutral-bg mb-[20px] py-[14px] dark:border-dark-neutral-bg">Вход</button>
-  <p class="text-sm text-gray-1100 dark:text-gray-dark-1100">У вас нет учетной записи?<a class="text-color-brands" href="index.php?page=sign-up">&nbsp;Зарегестрироваться</a></p>
+  
+  <div class="text-center">
+    <a href="index.php" class="text-sm text-gray-500 hover:text-color-brands transition-colors dark:text-gray-dark-500 inline-block mb-2">
+      ← На главную
+    </a>
+    <p class="text-sm text-gray-1100 dark:text-gray-dark-1100">
+      У вас нет учетной записи?
+      <a class="text-color-brands" href="index.php?page=sign-up">&nbsp;Зарегистрироваться</a>
+    </p>
+  </div>
 </form>
 
 <script>

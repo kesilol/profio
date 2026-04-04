@@ -127,40 +127,50 @@ if (isset($report_data['error'])) {
                     <?php endif; ?>
                 </div>
 
-                <!-- Рекомендации -->
+                <!-- Рекомендации (УНИКАЛЬНЫЕ) -->
                 <div class="rounded-2xl border border-neutral bg-neutral-bg dark:border-dark-neutral-border dark:bg-dark-neutral-bg p-6">
                     <h3 class="text-subtitle-semibold font-semibold text-gray-1100 dark:text-gray-dark-1100 mb-4">
                         Рекомендованные профессии
                     </h3>
 
                     <?php
-                    // Используем правильную проверку количества рекомендаций
-                    $recommendations_count = $report_data['recommendations'] ? $report_data['recommendations']->num_rows : 0;
+                    // Получаем уникальные рекомендации из базы данных
+                    $unique_recommendations_query = "
+                        SELECT r.*, p.title as profession_title, p.description as profession_description,
+                               p.category, p.salary_range, p.demand_level,
+                               pd.image_url as profession_image
+                        FROM recommendations r 
+                        LEFT JOIN professions p ON r.profession_id = p.id 
+                        LEFT JOIN profession_details pd ON p.id = pd.profession_id
+                        WHERE r.user_id = ? 
+                        AND r.id = (
+                            SELECT r2.id
+                            FROM recommendations r2
+                            WHERE r2.user_id = r.user_id 
+                            AND r2.profession_id = r.profession_id
+                            ORDER BY r2.match_percentage DESC, r2.id DESC
+                            LIMIT 1
+                        )
+                        ORDER BY r.match_percentage DESC
+                    ";
+                    
+                    $stmt_unique = $link->prepare($unique_recommendations_query);
+                    $stmt_unique->bind_param("i", $user_id);
+                    $stmt_unique->execute();
+                    $unique_recommendations = $stmt_unique->get_result();
+                    $unique_count = $unique_recommendations ? $unique_recommendations->num_rows : 0;
                     ?>
 
-                    <?php if ($recommendations_count > 0): ?>
+                    <?php if ($unique_count > 0): ?>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <?php
-                            // Используем массив с изображениями если он есть, иначе оригинальный результат
-                            if (isset($report_data['recommendations_with_images']) && !empty($report_data['recommendations_with_images'])) {
-                                $recommendations_to_display = $report_data['recommendations_with_images'];
-                            } else {
-                                // Если массива с изображениями нет, используем оригинальный результат
-                                $report_data['recommendations']->data_seek(0);
-                                $recommendations_to_display = [];
-                                while ($rec = $report_data['recommendations']->fetch_assoc()) {
-                                    $recommendations_to_display[] = $rec;
-                                }
-                            }
-
-                            foreach ($recommendations_to_display as $rec):
+                            <?php while ($rec = $unique_recommendations->fetch_assoc()): 
                                 $institutions = getInstitutionsForProfessionReport($link, $rec['profession_id'], 2);
                                 $companies = getCompaniesForProfessionReport($link, $rec['profession_id'], 2);
                             ?>
                                 <div class="border border-neutral dark:border-dark-neutral-border rounded-lg p-4 hover:shadow-md transition-shadow">
                                     <div class="flex items-center gap-3 mb-3">
-                                        <?php if (!empty($rec['image_url'])): ?>
-                                            <img src="<?php echo $rec['image_url']; ?>" alt="<?php echo $rec['profession_title']; ?>" class="w-12 h-12 rounded-lg object-cover">
+                                        <?php if (!empty($rec['profession_image'])): ?>
+                                            <img src="<?php echo $rec['profession_image']; ?>" alt="<?php echo $rec['profession_title']; ?>" class="w-12 h-12 rounded-lg object-cover">
                                         <?php else: ?>
                                             <div class="w-12 h-12 rounded-lg bg-gray-100 dark:bg-gray-dark-100 grid place-items-center">
                                                 <i class="bi bi-briefcase text-gray-400"></i>
@@ -248,7 +258,7 @@ if (isset($report_data['error'])) {
                                         </a>
                                     </div>
                                 </div>
-                            <?php endforeach; ?>
+                            <?php endwhile; ?>
                         </div>
                     <?php else: ?>
                         <p class="text-gray-500 dark:text-gray-dark-500 text-center py-4">
@@ -325,7 +335,7 @@ if (isset($report_data['error'])) {
 
             </div>
 
-        <?php elseif ($user_role === 'куратор'): ?>
+            <?php elseif ($user_role === 'куратор'): ?>
             <!-- СВОДКА ДЛЯ КУРАТОРА -->
             <div class="space-y-6">
 
@@ -351,9 +361,15 @@ if (isset($report_data['error'])) {
                     </div>
                     <div class="rounded-2xl border border-neutral bg-neutral-bg dark:border-dark-neutral-border dark:bg-dark-neutral-bg p-6 text-center">
                         <div class="text-2xl font-bold text-orange mb-1">
-                            <?php echo $report_data['overall_stats']['avg_test_score'] ?? '0'; ?>
+                            <?php 
+                            // Вместо среднего балла - процент студентов с рекомендациями
+                            $total_students = $report_data['overall_stats']['total_students'];
+                            $students_with_recommendations = $report_data['overall_stats']['students_with_recommendations'] ?? 0;
+                            $percent = $total_students > 0 ? round(($students_with_recommendations / $total_students) * 100) : 0;
+                            echo $percent . '%';
+                            ?>
                         </div>
-                        <div class="text-sm text-gray-500 dark:text-gray-dark-500">Средний балл</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-dark-500">С рекомендациями</div>
                     </div>
                 </div>
 
@@ -363,7 +379,6 @@ if (isset($report_data['error'])) {
                         <h3 class="text-subtitle-semibold font-semibold text-gray-1100 dark:text-gray-dark-1100">
                             Мои студенты
                         </h3>
-                        <!-- Кнопка для перехода к управлению студентами -->
                         <a href="index.php?page=manage-students" class="btn bg-color-brands text-white px-4 py-2 flex items-center gap-2">
                             <i class="bi bi-person-plus"></i>
                             Управление студентами
@@ -379,8 +394,10 @@ if (isset($report_data['error'])) {
                         <div class="flex gap-4">
                             <select id="educationFilter" class="p-3 border border-neutral dark:border-dark-neutral-border rounded-lg bg-white dark:bg-dark-neutral-bg">
                                 <option value="">Все уровни образования</option>
+                                <option value="нет образования">Нет образования</option>
                                 <option value="среднее">Среднее</option>
-                                <option value="среднее-специальное">Среднее-специальное</option>
+                                <option value="среднее-общее">Среднее общее</option>
+                                <option value="среднее-специальное">Среднее специальное</option>
                                 <option value="бакалавриат">Бакалавриат</option>
                                 <option value="магистратура">Магистратура</option>
                                 <option value="аспирантура">Аспирантура</option>
@@ -399,7 +416,6 @@ if (isset($report_data['error'])) {
                         $students_result = $report_data['students'];
                         if ($students_result && $students_result->num_rows > 0):
                             while ($student = $students_result->fetch_assoc()):
-                                // Определяем статус активности
                                 $is_active = false;
                                 if ($student['last_test_date']) {
                                     $last_test = strtotime($student['last_test_date']);
@@ -413,7 +429,6 @@ if (isset($report_data['error'])) {
                                     data-active="<?= $is_active ? 'active' : 'inactive' ?>"
                                     data-name="<?= htmlspecialchars(mb_strtolower($student['name'])) ?>">
 
-                                    <!-- Заголовок карточки -->
                                     <div class="flex justify-between items-start mb-4">
                                         <div class="flex-1">
                                             <h4 class="font-bold text-lg text-gray-1100 dark:text-gray-dark-1100 mb-1">
@@ -428,12 +443,22 @@ if (isset($report_data['error'])) {
                                                 <?= $is_active ? 'Активен' : 'Неактивен' ?>
                                             </span>
                                             <span class="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800">
-                                                <?= ucfirst($student['education_level']) ?>
+                                                <?php 
+                                                $edu_map = [
+                                                    'нет образования' => 'Нет обр.',
+                                                    'среднее' => 'Среднее',
+                                                    'среднее-общее' => 'Ср. общее',
+                                                    'среднее-специальное' => 'Ср. спец.',
+                                                    'бакалавриат' => 'Бакалавр',
+                                                    'магистратура' => 'Магистр',
+                                                    'аспирантура' => 'Аспирант'
+                                                ];
+                                                echo $edu_map[$student['education_level']] ?? ucfirst($student['education_level']);
+                                                ?>
                                             </span>
                                         </div>
                                     </div>
 
-                                    <!-- Статистика студента -->
                                     <div class="space-y-3 mb-4">
                                         <div class="flex justify-between items-center">
                                             <span class="text-sm text-gray-600 dark:text-gray-dark-600">Пройдено тестов:</span>
@@ -462,7 +487,6 @@ if (isset($report_data['error'])) {
                                         </div>
                                     </div>
 
-                                    <!-- Прогресс-бар (всегда показываем, но разный контент) -->
                                     <div class="mb-4">
                                         <div class="flex justify-between text-xs text-gray-500 mb-1">
                                             <span>Прогресс</span>
@@ -476,9 +500,7 @@ if (isset($report_data['error'])) {
                                         </div>
                                         <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
                                             <?php if ($student['tests_completed'] > 0): ?>
-                                                <?php
-                                                $progress = min(100, ($student['tests_completed'] / 5) * 100);
-                                                ?>
+                                                <?php $progress = min(100, ($student['tests_completed'] / 5) * 100); ?>
                                                 <div class="bg-color-brands h-2 rounded-full" style="width: <?= $progress ?>%"></div>
                                             <?php else: ?>
                                                 <div class="bg-gray-400 h-2 rounded-full" style="width: 100%"></div>
@@ -486,10 +508,8 @@ if (isset($report_data['error'])) {
                                         </div>
                                     </div>
 
-                                    <!-- Гибкое пространство для выравнивания -->
                                     <div class="flex-grow"></div>
 
-                                    <!-- Кнопка подробнее - ВСЕГДА ВНИЗУ -->
                                     <div class="pt-4 mt-auto">
                                         <a href="index.php?page=student-detail&id=<?= $student['id'] ?>"
                                             class="block w-full bg-color-brands text-white py-3 rounded-lg font-semibold hover:bg-opacity-90 transition flex items-center justify-center gap-2 text-center">
@@ -562,7 +582,16 @@ if (isset($report_data['error'])) {
                                         <?php echo $cat['recommendations_count']; ?>
                                     </div>
                                     <div class="text-sm text-gray-500 dark:text-gray-dark-500 mb-1">
-                                        <?php echo ucfirst($cat['category']); ?>
+                                        <?php 
+                                        $category_map = [
+                                            'техническая' => 'Технические',
+                                            'гуманитарная' => 'Гуманитарные',
+                                            'творческая' => 'Творческие',
+                                            'научная' => 'Научные',
+                                            'бизнес' => 'Бизнес'
+                                        ];
+                                        echo $category_map[$cat['category']] ?? ucfirst($cat['category']); 
+                                        ?>
                                     </div>
                                     <div class="text-xs text-gray-400">
                                         Совпадение: <?php echo round($cat['avg_match'], 1); ?>%
@@ -580,11 +609,6 @@ if (isset($report_data['error'])) {
             </div>
 
             <script>
-                // Поиск и фильтрация студентов
-                document.getElementById('studentSearch').addEventListener('input', filterStudents);
-                document.getElementById('educationFilter').addEventListener('change', filterStudents);
-                document.getElementById('activityFilter').addEventListener('change', filterStudents);
-
                 function filterStudents() {
                     const searchTerm = document.getElementById('studentSearch').value.toLowerCase();
                     const educationFilter = document.getElementById('educationFilter').value;
@@ -604,14 +628,17 @@ if (isset($report_data['error'])) {
                     });
                 }
 
-                // Активируем поиск при загрузке страницы
+                document.getElementById('studentSearch').addEventListener('input', filterStudents);
+                document.getElementById('educationFilter').addEventListener('change', filterStudents);
+                document.getElementById('activityFilter').addEventListener('change', filterStudents);
+
                 document.addEventListener('DOMContentLoaded', function() {
                     filterStudents();
                 });
             </script>
 
         <?php elseif ($user_role === 'администратор'): ?>
-            <!-- ПАНЕЛЬ АДМИНИСТРАТОРА -->
+            <!-- ПАНЕЛЬ АДМИНИСТРАТОРА (остается без изменений) -->
             <div class="space-y-6">
                 
                 <!-- Общая статистика системы -->

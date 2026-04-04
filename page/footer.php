@@ -4,17 +4,62 @@
 <!-- Футер -->
 <footer class="col-start-2 row-start-3 mt-auto">
     <div class="border-t border-neutral dark:border-dark-neutral-border">
-        <div class="max-w-7xl mx-auto px-5 md:px-6 py-4">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-3 text-sm">
-                <!-- Копирайт -->
+        <div class="max-w-7xl mx-auto px-5 md:px-6 py-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
+                <!-- Копирайт и информация -->
+                <div class="text-gray-500 dark:text-gray-dark-500 text-sm">
+                    <p>&copy; 2024 Profio — Система профессиональной ориентации</p>
+                    <p class="mt-1">Помогаем выбрать путь к успешной карьере</p>
+                </div>
+
+                <!-- Служба заботы -->
                 <div class="text-gray-500 dark:text-gray-dark-500">
-                    &copy; 2024 Profio — Система профессиональной ориентации
+                    <h4 class="text-gray-700 dark:text-gray-dark-700 font-semibold mb-2 text-sm">Служба заботы</h4>
+                    <div class="space-y-2 text-sm">
+                        <p class="flex items-center gap-2">
+                            <i class="bi bi-telephone text-color-brands"></i>
+                            <span>8-800-2000-122</span>
+                            <span class="text-xs text-gray-400">(Единый детский телефон доверия)</span>
+                        </p>
+                        <p class="flex items-center gap-2">
+                            <i class="bi bi-telephone text-color-brands"></i>
+                            <span>8 (831) 215-04-66</span>
+                            <span class="text-xs text-gray-400">(Телефон экстренной психологической помощи)</span>
+                        </p>
+                        <p class="flex items-center gap-2">
+                            <i class="bi bi-envelope text-color-brands"></i>
+                            <a href="mailto:zabota@myrosmol.ru" class="hover:text-color-brands transition">zabota@myrosmol.ru</a>
+                        </p>
+                        <p class="flex items-start gap-2 text-xs text-gray-400">
+                            <i class="bi bi-info-circle text-color-brands mt-0.5"></i>
+                            <span>Звонок бесплатный, анонимный, конфиденциальный</span>
+                        </p>
+                    </div>
                 </div>
 
                 <!-- Ссылки -->
-                <div class="flex gap-4 text-gray-500 dark:text-gray-dark-500">
-                    <a href="index.php?page=info#help" class="hover:text-color-brands transition">Поддержка</a>
-                    <a href="index.php?page=info#contacts" class="hover:text-color-brands transition">Контакты</a>
+                <div class="text-gray-500 dark:text-gray-dark-500">
+                    <h4 class="text-gray-700 dark:text-gray-dark-700 font-semibold mb-2 text-sm">Полезные ссылки</h4>
+                    <div class="flex flex-col space-y-1 text-sm">
+                        <a href="index.php?page=info#about" class="hover:text-color-brands transition flex items-center gap-2">
+                            <i class="bi bi-info-circle"></i> О нас
+                        </a>
+                        <a href="index.php?page=info#feedback" class="hover:text-color-brands transition flex items-center gap-2">
+                            <i class="bi bi-question-circle"></i> Помощь и поддержка
+                        </a>
+                        <a href="index.php?page=info#contacts" class="hover:text-color-brands transition flex items-center gap-2">
+                            <i class="bi bi-envelope-paper"></i> Контакты
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Нижняя линия с дополнительной информацией -->
+            <div class="border-t border-neutral dark:border-dark-neutral-border mt-4 pt-4 text-center">
+                <div class="flex flex-col md:flex-row justify-center items-center gap-3 text-xs text-gray-400 dark:text-gray-dark-500">
+                    <span>Проект реализуется при поддержке Министерства образования Нижегородской области</span>
+                    <span class="hidden md:inline">•</span>
+                    <span>© 2024 Все права защищены</span>
                 </div>
             </div>
         </div>

@@ -30,7 +30,11 @@ $routes = [
     'admin-tests' => 'page/admin-tests.php',
     'admin-professions' => 'page/admin-professions.php',
     'admin-companies' => 'page/admin-companies.php',
-    'admin-analytics' => 'page/admin-analytics.php'
+    'admin-analytics' => 'page/admin-analytics.php',
+    'mbti' => 'page/mbti.php',
+    'admin-feedback' => 'page/admin-feedback.php',
+    'admin-logs' => 'page/admin-logs.php'
+
 ];
 
 $authPages = ['sign-up', 'sign-in', 'sign-up-success'];

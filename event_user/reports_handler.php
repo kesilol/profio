@@ -49,19 +49,25 @@ function getStudentReportData($link, $user_id) {
         $tests_query->execute();
         $data['test_results'] = $tests_query->get_result();
         
-        // Рекомендации
+        // УНИКАЛЬНЫЕ рекомендации (только лучший процент для каждой профессии)
         $rec_query = $link->prepare("
             SELECT r.*, p.title as profession_title, p.category, p.salary_range, p.demand_level,
                    p.description as profession_description
             FROM recommendations r
             JOIN professions p ON r.profession_id = p.id
             WHERE r.user_id = ?
+            AND (r.profession_id, r.match_percentage) IN (
+                SELECT profession_id, MAX(match_percentage)
+                FROM recommendations
+                WHERE user_id = ?
+                GROUP BY profession_id
+            )
             ORDER BY r.match_percentage DESC
         ");
         if (!$rec_query) {
             throw new Exception("Ошибка подготовки запроса рекомендаций: " . $link->error);
         }
-        $rec_query->bind_param("i", $user_id);
+        $rec_query->bind_param("ii", $user_id, $user_id);
         $rec_query->execute();
         $data['recommendations'] = $rec_query->get_result();
 
@@ -86,13 +92,14 @@ function getStudentReportData($link, $user_id) {
             $data['recommendations_with_images'] = $recommendations_with_images;
         }
         
-        // Активный план развития
+        // Активный план развития (не завершенный и прогресс не 100%)
         $plan_query = $link->prepare("
             SELECT dp.*, 
                    (SELECT COUNT(*) FROM plan_tasks WHERE plan_id = dp.id) as total_tasks,
                    (SELECT COUNT(*) FROM plan_tasks WHERE plan_id = dp.id AND is_completed = 1) as completed_tasks
             FROM development_plans dp
             WHERE dp.user_id = ? AND dp.is_completed = 0
+            HAVING completed_tasks < total_tasks
             ORDER BY dp.created_at DESC
             LIMIT 1
         ");
@@ -128,6 +135,35 @@ function getCuratorReportData($link, $curator_id) {
     $data = [];
     
     try {
+        // Получаем список студентов куратора
+        $students_list_query = $link->prepare("
+            SELECT student_id FROM curator_students WHERE curator_id = ?
+        ");
+        $students_list_query->bind_param("i", $curator_id);
+        $students_list_query->execute();
+        $students_list_result = $students_list_query->get_result();
+        
+        $student_ids = [];
+        while ($row = $students_list_result->fetch_assoc()) {
+            $student_ids[] = $row['student_id'];
+        }
+        
+        // Подсчет студентов с рекомендациями
+        $students_with_rec = 0;
+        if (!empty($student_ids)) {
+            $placeholders = implode(',', array_fill(0, count($student_ids), '?'));
+            $rec_students_query = $link->prepare("
+                SELECT COUNT(DISTINCT user_id) as count 
+                FROM recommendations 
+                WHERE user_id IN ($placeholders)
+            ");
+            $types = str_repeat('i', count($student_ids));
+            $rec_students_query->bind_param($types, ...$student_ids);
+            $rec_students_query->execute();
+            $rec_result = $rec_students_query->get_result();
+            $students_with_rec = $rec_result->fetch_assoc()['count'] ?? 0;
+        }
+        
         // Общая статистика
         $stats_query = $link->prepare("
             SELECT 
@@ -147,6 +183,9 @@ function getCuratorReportData($link, $curator_id) {
         $stats_query->execute();
         $stats_result = $stats_query->get_result();
         $data['overall_stats'] = $stats_result->fetch_assoc();
+        
+        // Добавляем количество студентов с рекомендациями
+        $data['overall_stats']['students_with_recommendations'] = $students_with_rec;
         
         // Список студентов
         $students_query = $link->prepare("
@@ -191,16 +230,22 @@ function getCuratorReportData($link, $curator_id) {
         $test_stats_query->execute();
         $data['test_stats'] = $test_stats_query->get_result();
         
-        // Распределение по категориям профессий
+        // Распределение по категориям профессий (уникальные рекомендации)
         $prof_stats_query = $link->prepare("
             SELECT 
                 p.category,
-                COUNT(r.id) as recommendations_count,
+                COUNT(DISTINCT r.id) as recommendations_count,
                 AVG(r.match_percentage) as avg_match
             FROM recommendations r
             JOIN professions p ON r.profession_id = p.id
             JOIN curator_students cs ON r.user_id = cs.student_id
             WHERE cs.curator_id = ?
+            AND (r.profession_id, r.match_percentage) IN (
+                SELECT profession_id, MAX(match_percentage)
+                FROM recommendations r2
+                WHERE r2.user_id = r.user_id
+                GROUP BY profession_id
+            )
             GROUP BY p.category
             ORDER BY recommendations_count DESC
         ");
@@ -320,6 +365,7 @@ function downloadStudentPDF($link, $user_id) {
     echo $pdf_content;
     exit();
 }
+
 function getAdminReportData($link) {
     $data = [];
     
@@ -376,7 +422,6 @@ function getTotalTestsCompleted($link) {
 }
 
 function getTotalRecommendations($link) {
-    // Используем правильное название таблицы (должно быть recommendations, а не user_recommendations)
     $sql = "SELECT COUNT(*) as count FROM recommendations";
     $result = mysqli_query($link, $sql);
     if ($result && $row = mysqli_fetch_assoc($result)) {
@@ -386,7 +431,6 @@ function getTotalRecommendations($link) {
 }
 
 function getActiveDevelopmentPlans($link) {
-    // Используем правильное поле (должно быть is_completed, а не status)
     $sql = "SELECT COUNT(*) as count FROM development_plans WHERE is_completed = 0";
     $result = mysqli_query($link, $sql);
     if ($result && $row = mysqli_fetch_assoc($result)) {

@@ -195,7 +195,9 @@ if (!empty($errors)) {
                             </label>
                             <select id="education_level" name="education_level" 
                                     class="w-full px-3 py-2 border border-neutral dark:border-dark-neutral-border rounded-lg focus:outline-none focus:ring-2 focus:ring-color-brands">
+                                <option value="нет образования" <?php echo $user_data['education_level'] === 'нет образования' ? 'selected' : ''; ?>>Нет образования</option>
                                 <option value="среднее" <?php echo $user_data['education_level'] === 'среднее' ? 'selected' : ''; ?>>Среднее</option>
+                                <option value="среднее-общее" <?php echo $user_data['education_level'] === 'среднее-общее' ? 'selected' : ''; ?>>Среднее общее</option>
                                 <option value="среднее-специальное" <?php echo $user_data['education_level'] === 'среднее-специальное' ? 'selected' : ''; ?>>Среднее специальное</option>
                                 <option value="бакалавриат" <?php echo $user_data['education_level'] === 'бакалавриат' ? 'selected' : ''; ?>>Бакалавриат</option>
                                 <option value="магистратура" <?php echo $user_data['education_level'] === 'магистратура' ? 'selected' : ''; ?>>Магистратура</option>
