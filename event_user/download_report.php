@@ -9,7 +9,7 @@ if (!isset($_SESSION['user'])) {
 }
 
 // Проверяем роль - только студенты могут скачивать свои отчеты
-if ($_SESSION['user']['role'] !== 'студент') {
+if ($_SESSION['user']['role'] !== 'обучающийся') {
     die('Access denied. Only students can download their reports.');
 }
 

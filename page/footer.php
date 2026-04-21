@@ -8,7 +8,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
                 <!-- Копирайт и информация -->
                 <div class="text-gray-500 dark:text-gray-dark-500 text-sm">
-                    <p>&copy; 2024 Profio — Система профессиональной ориентации</p>
+                    <p>&copy; 2026 Profio — Система профессиональной ориентации</p>
                     <p class="mt-1">Помогаем выбрать путь к успешной карьере</p>
                 </div>
 
@@ -59,7 +59,7 @@
                 <div class="flex flex-col md:flex-row justify-center items-center gap-3 text-xs text-gray-400 dark:text-gray-dark-500">
                     <span>Проект реализуется при поддержке Министерства образования Нижегородской области</span>
                     <span class="hidden md:inline">•</span>
-                    <span>© 2024 Все права защищены</span>
+                    <span>© 2026 Все права защищены</span>
                 </div>
             </div>
         </div>

@@ -202,7 +202,7 @@ function getCuratorReportData($link, $curator_id) {
             ORDER BY u.name
         ");
         if (!$students_query) {
-            throw new Exception("Ошибка подготовки запроса студентов: " . $link->error);
+            throw new Exception("Ошибка подготовки запроса обучающихся: " . $link->error);
         }
         $students_query->bind_param("i", $curator_id);
         $students_query->execute();
@@ -395,7 +395,7 @@ function getAdminReportData($link) {
 
 // Вспомогательные функции для администратора
 function getTotalStudents($link) {
-    $sql = "SELECT COUNT(*) as count FROM users WHERE role = 'студент'";
+    $sql = "SELECT COUNT(*) as count FROM users WHERE role = 'обучающийся'";
     $result = mysqli_query($link, $sql);
     if ($result && $row = mysqli_fetch_assoc($result)) {
         return $row['count'];

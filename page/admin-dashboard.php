@@ -8,7 +8,7 @@ if ($_SESSION['user']['role'] !== 'администратор') {
 // Получаем статистику для админки
 $stats = $link->query("
     SELECT 
-        (SELECT COUNT(*) FROM users WHERE role = 'студент') as total_students,
+        (SELECT COUNT(*) FROM users WHERE role = 'обучающийся') as total_students,
         (SELECT COUNT(*) FROM users WHERE role = 'куратор') as total_curators,
         (SELECT COUNT(*) FROM test_results) as total_tests,
         (SELECT COUNT(*) FROM development_plans) as total_plans,
@@ -58,7 +58,7 @@ $recent_users = $link->query("
                     <i class="bi bi-people text-xl"></i>
                 </div>
                 <div class="stat-number"><?= $stats['total_students'] ?></div>
-                <div class="stat-label">Студентов</div>
+                <div class="stat-label">Обучающихся</div>
             </div>
 
             <!-- Кураторы -->
@@ -138,7 +138,7 @@ $recent_users = $link->query("
                                 <p class="font-medium"><?= htmlspecialchars($user['name']) ?></p>
                                 <p class="text-sm text-gray-500"><?= htmlspecialchars($user['email']) ?></p>
                             </div>
-                            <span class="badge <?= $user['role'] === 'студент' ? 'badge-success' : ($user['role'] === 'куратор' ? 'badge-warning' : 'badge-primary') ?>">
+                            <span class="badge <?= $user['role'] === 'обучающийся' ? 'badge-success' : ($user['role'] === 'куратор' ? 'badge-warning' : 'badge-primary') ?>">
                                 <?= $user['role'] ?>
                             </span>
                         </div>

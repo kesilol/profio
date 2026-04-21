@@ -11,7 +11,7 @@ $user_id = $_SESSION['user']['id_user'];
 $user_role = $_SESSION['user']['role'];
 
 // Получаем данные в зависимости от роли
-if ($user_role === 'студент') {
+if ($user_role === 'обучающийся') {
     $report_data = getStudentReportData($link, $user_id);
 } elseif ($user_role === 'куратор') {
     $report_data = getCuratorReportData($link, $user_id);
@@ -30,10 +30,10 @@ if (isset($report_data['error'])) {
     <div>
         <h2 class="capitalize text-gray-1100 font-bold text-[28px] leading-[35px] dark:text-gray-dark-1100 mb-[13px]">
             <?php 
-            if ($user_role === 'студент') {
+            if ($user_role === 'обучающийся') {
                 echo 'Мой отчет';
             } elseif ($user_role === 'куратор') {
-                echo 'Сводка по студентам';
+                echo 'Сводка по обучающимся';
             } elseif ($user_role === 'администратор') {
                 echo 'Статистика системы';
             }
@@ -49,7 +49,7 @@ if (isset($report_data['error'])) {
             <span class="capitalize text-color-brands">Отчеты</span>
         </div>
 
-        <?php if ($user_role === 'студент'): ?>
+        <?php if ($user_role === 'обучающийся'): ?>
             <!-- ОТЧЕТ ДЛЯ СТУДЕНТА -->
             <div class="space-y-6">
                 <!-- Карточка с основной информацией -->
@@ -345,7 +345,7 @@ if (isset($report_data['error'])) {
                         <div class="text-2xl font-bold text-color-brands mb-1">
                             <?php echo $report_data['overall_stats']['total_students']; ?>
                         </div>
-                        <div class="text-sm text-gray-500 dark:text-gray-dark-500">Студентов</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-dark-500">Обучающихся</div>
                     </div>
                     <div class="rounded-2xl border border-neutral bg-neutral-bg dark:border-dark-neutral-border dark:bg-dark-neutral-bg p-6 text-center">
                         <div class="text-2xl font-bold text-green mb-1">
@@ -377,18 +377,18 @@ if (isset($report_data['error'])) {
                 <div class="rounded-2xl border border-neutral bg-neutral-bg dark:border-dark-neutral-border dark:bg-dark-neutral-bg p-6">
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="text-subtitle-semibold font-semibold text-gray-1100 dark:text-gray-dark-1100">
-                            Мои студенты
+                            Мои обучающиеся
                         </h3>
                         <a href="index.php?page=manage-students" class="btn bg-color-brands text-white px-4 py-2 flex items-center gap-2">
                             <i class="bi bi-person-plus"></i>
-                            Управление студентами
+                            Управление обучающимися
                         </a>
                     </div>
 
                     <!-- Поиск и фильтры -->
                     <div class="mb-6 flex flex-col md:flex-row gap-4">
                         <div class="flex-grow">
-                            <input type="text" id="studentSearch" placeholder="Поиск по имени студента..."
+                            <input type="text" id="studentSearch" placeholder="Поиск по имени обучающегося..."
                                 class="w-full p-3 border border-neutral dark:border-dark-neutral-border rounded-lg bg-white dark:bg-dark-neutral-bg">
                         </div>
                         <div class="flex gap-4">
@@ -522,9 +522,9 @@ if (isset($report_data['error'])) {
                         <?php else: ?>
                             <div class="col-span-full text-center py-8">
                                 <i class="bi bi-people text-4xl text-gray-300 mb-3"></i>
-                                <p class="text-gray-500 dark:text-gray-dark-500">Нет студентов в вашем списке</p>
+                                <p class="text-gray-500 dark:text-gray-dark-500">Нет обучающихся в вашем списке</p>
                                 <a href="index.php?page=manage-students" class="btn bg-color-brands text-white mt-3 inline-block">
-                                    Добавить студентов
+                                    Добавить обучающихся
                                 </a>
                             </div>
                         <?php endif; ?>
@@ -550,7 +550,7 @@ if (isset($report_data['error'])) {
                                             <span class="font-semibold"><?php echo $test['completions']; ?></span>
                                         </div>
                                         <div class="flex justify-between">
-                                            <span class="text-gray-500">Студентов:</span>
+                                            <span class="text-gray-500">Обучающихся:</span>
                                             <span class="font-semibold"><?php echo $test['unique_students']; ?></span>
                                         </div>
                                         <div class="flex justify-between">
@@ -647,7 +647,7 @@ if (isset($report_data['error'])) {
                         <div class="text-2xl font-bold text-color-brands mb-1">
                             <?php echo $report_data['overall_stats']['total_students'] ?? 0; ?>
                         </div>
-                        <div class="text-sm text-gray-500 dark:text-gray-dark-500">Студентов</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-dark-500">Обучающихся</div>
                     </div>
                     <div class="rounded-2xl border border-neutral bg-neutral-bg dark:border-dark-neutral-border dark:bg-dark-neutral-bg p-6 text-center">
                         <div class="text-2xl font-bold text-green mb-1">
@@ -694,7 +694,7 @@ if (isset($report_data['error'])) {
                                             <span class="font-semibold"><?php echo $test['completions']; ?></span>
                                         </div>
                                         <div class="flex justify-between">
-                                            <span class="text-gray-500">Уникальных студентов:</span>
+                                            <span class="text-gray-500">Уникальных обучающихся:</span>
                                             <span class="font-semibold"><?php echo $test['unique_students']; ?></span>
                                         </div>
                                         <div class="flex justify-between">

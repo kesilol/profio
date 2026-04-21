@@ -24,9 +24,9 @@ function isPasswordStrong($password) {
         return "Пароль должен содержать хотя бы одну цифру (0-9)";
     }
     
-    // Спецсимвол
-    if (!preg_match('/[!@#$%^&*]/', $password)) {
-        return "Пароль должен содержать хотя бы один спецсимвол (!@#$%^&*)";
+    // Спецсимвол (включая - и _)
+    if (!preg_match('/[!@#$%^&*\-_]/', $password)) {
+        return "Пароль должен содержать хотя бы один спецсимвол (!@#$%^&*-_)";
     }
     
     return true;
@@ -73,7 +73,15 @@ if (empty($login) || empty($email) || empty($role) || empty($education_level) ||
             $user_id = $link->insert_id;
             
             // ★★★★ СОХРАНЕНИЕ РЕЗУЛЬТАТОВ ОНБОРДИНГ-ТЕСТА ★★★★
-            if (isset($_SESSION['onboarding_results'])) {
+            // Проверяем, что результаты теста свежие (менее 30 минут)
+            $is_test_fresh = false;
+            if (isset($_SESSION['onboarding_results']) && isset($_SESSION['onboarding_timestamp'])) {
+                if (time() - $_SESSION['onboarding_timestamp'] <= 1800) { // 30 минут
+                    $is_test_fresh = true;
+                }
+            }
+            
+            if ($is_test_fresh && isset($_SESSION['onboarding_results'])) {
                 $test_data = $_SESSION['onboarding_results'];
                 
                 // Сохраняем результат теста
@@ -107,11 +115,14 @@ if (empty($login) || empty($email) || empty($role) || empty($education_level) ||
                     'test_title' => $test_data['test_title'],
                     'result_id' => $result_id
                 ];
-                
-                // Очищаем временные данные
-                unset($_SESSION['onboarding_results']);
-                unset($_SESSION['onboarding_completed']);
             }
+            
+            // ★★★ ОЧИЩАЕМ ВСЕ ДАННЫЕ ТЕСТА ★★★
+            unset($_SESSION['onboarding_results']);
+            unset($_SESSION['onboarding_completed']);
+            unset($_SESSION['onboarding_timestamp']);
+            unset($_SESSION['just_completed_test']);
+            unset($_SESSION['pending_registration']);
             
             // Очищаем данные формы при успешной регистрации
             unset($_SESSION['form_data']);

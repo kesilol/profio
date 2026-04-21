@@ -96,7 +96,7 @@ if ($user_role === 'куратор') {
                 <!-- Мои студенты -->
                 <div class="rounded-2xl border border-neutral bg-neutral-bg dark:border-dark-neutral-border dark:bg-dark-neutral-bg py-4 flex-1 px-[19px] hover:shadow-md transition-all group cursor-pointer" onclick="window.location.href='index.php?page=manage-students'">
                     <div class="flex items-center justify-between mb-4">
-                        <p class="text-desc text-gray-500 dark:text-gray-dark-500">Мои студенты</p>
+                        <p class="text-desc text-gray-500 dark:text-gray-dark-500">Мои обучающиеся</p>
                         <div class="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
                             <i class="bi bi-people text-green-600 dark:text-green-400 text-lg"></i>
                         </div>
@@ -121,7 +121,7 @@ if ($user_role === 'куратор') {
                             <div class="bg-green-500 h-1.5 rounded-full" style="width: <?php echo $progress; ?>%"></div>
                         </div>
                         <p class="text-right text-gray-400 dark:text-gray-dark-400 text-[11px] leading-[16px] mt-1">
-                            Всего студентов
+                            Всего обучающихся
                         </p>
                     </div>
                     <p class="text-right text-gray-400 dark:text-gray-dark-400 text-[11px] leading-[16px] mt-1">
@@ -209,8 +209,8 @@ if ($user_role === 'куратор') {
                     <!-- Последние добавленные студенты -->
                     <div class="rounded-2xl border border-neutral bg-neutral-bg dark:border-dark-neutral-border dark:bg-dark-neutral-bg p-6">
                         <div class="flex items-center justify-between mb-4">
-                            <p class="text-subtitle-semibold font-semibold text-gray-1100 dark:text-gray-dark-1100">Последние добавленные студенты</p>
-                            <a href="index.php?page=manage-students" class="text-color-brands text-sm hover:underline">Все студенты →</a>
+                            <p class="text-subtitle-semibold font-semibold text-gray-1100 dark:text-gray-dark-1100">Последние добавленные обучающиеся</p>
+                            <a href="index.php?page=manage-students" class="text-color-brands text-sm hover:underline">Все обучающиеся →</a>
                         </div>
                         <div class="w-full bg-neutral h-[1px] mb-[19px] dark:bg-dark-neutral-border"></div>
                         <div class="space-y-4">
@@ -235,7 +235,7 @@ if ($user_role === 'куратор') {
                                     </div>
                                 <?php endwhile; ?>
                             <?php else: ?>
-                                <p class="text-gray-500 dark:text-gray-dark-500 text-center py-4">Нет студентов в списке</p>
+                                <p class="text-gray-500 dark:text-gray-dark-500 text-center py-4">Нет обучающихся в списке</p>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -243,7 +243,7 @@ if ($user_role === 'куратор') {
                     <!-- Самые активные студенты -->
                     <div class="rounded-2xl border border-neutral bg-neutral-bg dark:border-dark-neutral-border dark:bg-dark-neutral-bg p-6">
                         <div class="flex items-center justify-between mb-4">
-                            <p class="text-subtitle-semibold font-semibold text-gray-1100 dark:text-gray-dark-1100">Самые активные студенты</p>
+                            <p class="text-subtitle-semibold font-semibold text-gray-1100 dark:text-gray-dark-1100">Самые активные обучающиеся</p>
                             <i class="bi bi-trophy text-xl text-yellow-500"></i>
                         </div>
                         <div class="w-full bg-neutral h-[1px] mb-[19px] dark:bg-dark-neutral-border"></div>
@@ -276,7 +276,7 @@ if ($user_role === 'куратор') {
                                 endwhile; 
                                 ?>
                             <?php else: ?>
-                                <p class="text-gray-500 dark:text-gray-dark-500 text-center py-4">Нет активных студентов</p>
+                                <p class="text-gray-500 dark:text-gray-dark-500 text-center py-4">Нет активных обучающихся</p>
                             <?php endif; ?>
                         </div>
                     </div>

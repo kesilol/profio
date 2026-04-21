@@ -8,6 +8,13 @@ if (isset($_SESSION['user'])) {
     exit();
 }
 
+// Очищаем старые данные теста перед началом нового тестирования
+// Это важно, чтобы при повторном заходе на тест не оставались старые результаты
+unset($_SESSION['onboarding_completed']);
+unset($_SESSION['onboarding_results']);
+unset($_SESSION['onboarding_timestamp']);
+unset($_SESSION['pending_registration']);
+
 // Используем тест Климова (ID=1)
 $test_id = 1;
 $test = $link->query("SELECT * FROM tests WHERE id = '$test_id'")->fetch_assoc();

@@ -1,8 +1,41 @@
 <?php
+session_start();
+require('connect.php');
+
+// ★★★ ОЧИЩАЕМ ВСЕ ВРЕМЕННЫЕ СООБЩЕНИЯ ПРИ ЗАГРУЗКЕ ★★★
+// Страница регистрации не должна показывать сообщения от предыдущих действий
+unset($_SESSION['message']);
+unset($_SESSION['error']);
+unset($_SESSION['success']);
+
 // Если пользователь уже авторизован, перенаправляем
 if (isset($_SESSION['user'])) {
   header("Location: index.php?page=main");
   exit();
+}
+
+// ★★★ ЛОГИКА ОЧИСТКИ УСТАРЕВШИХ РЕЗУЛЬТАТОВ ТЕСТА ★★★
+// Проверяем, есть ли флаг, что пользователь только что прошел тест
+if (!isset($_SESSION['just_completed_test'])) {
+    unset($_SESSION['onboarding_completed']);
+    unset($_SESSION['onboarding_results']);
+    unset($_SESSION['onboarding_timestamp']);
+} else {
+    if (isset($_SESSION['onboarding_timestamp']) && (time() - $_SESSION['onboarding_timestamp'] > 1800)) {
+        unset($_SESSION['onboarding_completed']);
+        unset($_SESSION['onboarding_results']);
+        unset($_SESSION['onboarding_timestamp']);
+        unset($_SESSION['just_completed_test']);
+        unset($_SESSION['pending_registration']);
+    }
+}
+
+// Дополнительная проверка через referer
+if (!isset($_SERVER['HTTP_REFERER']) || 
+    (strpos($_SERVER['HTTP_REFERER'], 'onboarding_test.php') === false && 
+     strpos($_SERVER['HTTP_REFERER'], 'test-onboarding.php') === false)) {
+    unset($_SESSION['just_completed_test']);
+    unset($_SESSION['pending_registration']);
 }
 ?>
 
@@ -16,7 +49,7 @@ if (isset($_SESSION['user'])) {
       </div>
 
       <h3 class="font-bold text-2xl text-gray-1100 capitalize mb-[5px] dark:text-gray-dark-1100">
-        <?php if (isset($_SESSION['onboarding_completed'])): ?>
+        <?php if (isset($_SESSION['onboarding_completed']) && isset($_SESSION['just_completed_test'])): ?>
           Создайте аккаунт для сохранения результатов
         <?php else: ?>
           Регистрация
@@ -24,24 +57,25 @@ if (isset($_SESSION['user'])) {
       </h3>
 
       <p class="text-sm text-gray-500 mb-[30px] dark:text-gray-dark-500">
-        <?php if (isset($_SESSION['onboarding_completed'])): ?>
+        <?php if (isset($_SESSION['onboarding_completed']) && isset($_SESSION['just_completed_test'])): ?>
           Ваши результаты теста готовы! Сохраните их в личном кабинете.
         <?php else: ?>
           Добро пожаловать!
         <?php endif; ?>
       </p>
 
-      <?php if (isset($_SESSION['onboarding_completed']) && isset($_SESSION['onboarding_results'])): ?>
+      <?php if (isset($_SESSION['onboarding_completed']) && isset($_SESSION['just_completed_test']) && isset($_SESSION['onboarding_results'])): ?>
         <div class="mb-4 p-3 bg-green-50 rounded-lg border border-green-200 dark:bg-green-900/20 dark:border-green-800">
           <p class="text-sm text-green-800 dark:text-green-300">
-            ✅ Вы прошли тест: <strong><?php echo $_SESSION['onboarding_results']['test_title']; ?></strong><br>
-            Ваш тип: <strong><?php echo ucfirst($_SESSION['onboarding_results']['result_type']); ?></strong>
+            ✅ Вы прошли тест: <strong><?php echo htmlspecialchars($_SESSION['onboarding_results']['test_title']); ?></strong><br>
+            Ваш тип: <strong><?php echo ucfirst(htmlspecialchars($_SESSION['onboarding_results']['result_type'])); ?></strong>
           </p>
         </div>
       <?php endif; ?>
 
       <?php if (isset($_SESSION['message'])): ?>
-        <div class="text-green-500 text-sm mb-4"><?php echo $_SESSION['message']; ?></div>
+        <div class="text-green-500 text-sm mb-4"><?php echo htmlspecialchars($_SESSION['message']); ?></div>
+        <?php unset($_SESSION['message']); ?>
       <?php endif; ?>
 
       <div>
@@ -61,7 +95,7 @@ if (isset($_SESSION['user'])) {
             </button>
           </div>
           <?php if (isset($_SESSION['error_required'])): ?>
-            <div class="text-red-500 text-xs mt-1"><?php echo $_SESSION['error_required']; ?></div>
+            <div class="text-red-500 text-xs mt-1"><?php echo htmlspecialchars($_SESSION['error_required']); ?></div>
           <?php endif; ?>
         </div>
 
@@ -81,7 +115,7 @@ if (isset($_SESSION['user'])) {
             </button>
           </div>
           <?php if (isset($_SESSION['error_email'])): ?>
-            <div class="text-red-500 text-xs mt-1"><?php echo $_SESSION['error_email']; ?></div>
+            <div class="text-red-500 text-xs mt-1"><?php echo htmlspecialchars($_SESSION['error_email']); ?></div>
           <?php endif; ?>
         </div>
 
@@ -108,9 +142,9 @@ if (isset($_SESSION['user'])) {
               <option value="" disabled <?php echo !isset($_SESSION['form_data']['role']) ? 'selected' : ''; ?>>Выберите роль</option>
               <?php foreach ($roles as $role): ?>
                 <?php if ($role != 'администратор'): ?>
-                  <option value="<?php echo $role; ?>"
+                  <option value="<?php echo htmlspecialchars($role); ?>"
                     <?php echo (isset($_SESSION['form_data']['role']) && $_SESSION['form_data']['role'] == $role) ? 'selected' : ''; ?>>
-                    <?php echo ucfirst($role); ?>
+                    <?php echo ucfirst(htmlspecialchars($role)); ?>
                   </option>
                 <?php endif; ?>
               <?php endforeach; ?>
@@ -120,7 +154,7 @@ if (isset($_SESSION['user'])) {
             </button>
           </div>
           <?php if (isset($_SESSION['error_required'])): ?>
-            <div class="text-red-500 text-xs mt-1"><?php echo $_SESSION['error_required']; ?></div>
+            <div class="text-red-500 text-xs mt-1"><?php echo htmlspecialchars($_SESSION['error_required']); ?></div>
           <?php endif; ?>
         </div>
 
@@ -132,9 +166,9 @@ if (isset($_SESSION['user'])) {
             <select class="select flex-1 bg-transparent text-black focus:outline-none dark:text-white w-full py-3 px-4" name="education_level" required>
               <option value="" disabled <?php echo !isset($_SESSION['form_data']['education_level']) ? 'selected' : ''; ?>>Выберите уровень образования</option>
               <?php foreach ($education_levels as $level): ?>
-                <option value="<?php echo $level; ?>"
+                <option value="<?php echo htmlspecialchars($level); ?>"
                   <?php echo (isset($_SESSION['form_data']['education_level']) && $_SESSION['form_data']['education_level'] == $level) ? 'selected' : ''; ?>>
-                  <?php echo ucfirst(str_replace('-', ' ', $level)); ?>
+                  <?php echo ucfirst(str_replace('-', ' ', htmlspecialchars($level))); ?>
                 </option>
               <?php endforeach; ?>
             </select>
@@ -143,7 +177,7 @@ if (isset($_SESSION['user'])) {
             </button>
           </div>
           <?php if (isset($_SESSION['error_required'])): ?>
-            <div class="text-red-500 text-xs mt-1"><?php echo $_SESSION['error_required']; ?></div>
+            <div class="text-red-500 text-xs mt-1"><?php echo htmlspecialchars($_SESSION['error_required']); ?></div>
           <?php endif; ?>
         </div>
 
@@ -205,7 +239,7 @@ if (isset($_SESSION['user'])) {
           </div>
 
           <?php if (isset($_SESSION['error_pas'])): ?>
-            <div class="text-red-500 text-xs mt-1"><?php echo $_SESSION['error_pas']; ?></div>
+            <div class="text-red-500 text-xs mt-1"><?php echo htmlspecialchars($_SESSION['error_pas']); ?></div>
           <?php endif; ?>
         </div>
 
@@ -235,13 +269,13 @@ if (isset($_SESSION['user'])) {
             </span>
           </div>
           <?php if (isset($_SESSION['error_pas'])): ?>
-            <div class="text-red-500 text-xs mt-1"><?php echo $_SESSION['error_pas']; ?></div>
+            <div class="text-red-500 text-xs mt-1"><?php echo htmlspecialchars($_SESSION['error_pas']); ?></div>
           <?php endif; ?>
         </div>
       </div>
 
       <button type="submit" class="btn normal-case h-fit min-h-fit transition-all duration-300 border-4 w-full border-neutral-bg mb-[20px] py-[14px] dark:border-dark-neutral-bg bg-color-brands text-white cursor-pointer hover:opacity-90" id="submitBtn">
-        <?php if (isset($_SESSION['onboarding_completed'])): ?>
+        <?php if (isset($_SESSION['onboarding_completed']) && isset($_SESSION['just_completed_test'])): ?>
           Сохранить результаты и создать аккаунт
         <?php else: ?>
           Зарегистрироваться
@@ -258,7 +292,7 @@ if (isset($_SESSION['user'])) {
         </p>
       </div>
 
-      <?php if (!isset($_SESSION['onboarding_completed'])): ?>
+      <?php if (!isset($_SESSION['onboarding_completed']) || !isset($_SESSION['just_completed_test'])): ?>
         <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
           <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
             Хотите сначала пройти тест?
@@ -271,117 +305,117 @@ if (isset($_SESSION['user'])) {
     </form>
 
     <script>
-  function showPasswordRequirements() {
-    const requirementsDiv = document.getElementById('passwordRequirements');
-    if (requirementsDiv) {
-      requirementsDiv.classList.remove('hidden');
-    }
-  }
-
-  function hidePasswordRequirements() {
-    const password = document.getElementById('password1').value;
-    // Скрываем только если поле пустое
-    if (!password) {
-      const requirementsDiv = document.getElementById('passwordRequirements');
-      if (requirementsDiv) {
-        requirementsDiv.classList.add('hidden');
+      function showPasswordRequirements() {
+        const requirementsDiv = document.getElementById('passwordRequirements');
+        if (requirementsDiv) {
+          requirementsDiv.classList.remove('hidden');
+        }
       }
-    }
-  }
 
-  function validatePassword() {
-    const password = document.getElementById('password1').value;
-    const password2 = document.getElementById('password2').value;
-
-    // Регулярные выражения для проверки (добавлены - и _)
-    const hasLength = password.length >= 8;
-    const hasUppercase = /[A-Z]/.test(password);
-    const hasLowercase = /[a-z]/.test(password);
-    const hasNumber = /[0-9]/.test(password);
-    const hasSpecial = /[!@#$%^&*\-_]/.test(password); // Добавлены - и _
-
-    // Обновляем визуальные индикаторы
-    updateRequirement('length', hasLength);
-    updateRequirement('uppercase', hasUppercase);
-    updateRequirement('lowercase', hasLowercase);
-    updateRequirement('number', hasNumber);
-    updateRequirement('special', hasSpecial);
-
-    // Проверяем совпадение паролей
-    validatePasswordConfirmation();
-    
-    return hasLength && hasUppercase && hasLowercase && hasNumber && hasSpecial;
-  }
-
-  function updateRequirement(elementId, isValid) {
-    const element = document.getElementById(elementId);
-    if (!element) return;
-    
-    const textSpan = element.querySelector('span:last-child') || element.querySelector('span');
-    const text = textSpan ? textSpan.textContent : element.textContent.replace(/[✓✗]/g, '').trim();
-    const svg = element.querySelector('svg');
-    
-    if (isValid) {
-      element.classList.remove('text-gray-500', 'dark:text-gray-400', 'text-red-500', 'dark:text-red-400');
-      element.classList.add('text-green-500', 'dark:text-green-400');
-      if (svg) {
-        svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>';
+      function hidePasswordRequirements() {
+        const password = document.getElementById('password1').value;
+        // Скрываем только если поле пустое
+        if (!password) {
+          const requirementsDiv = document.getElementById('passwordRequirements');
+          if (requirementsDiv) {
+            requirementsDiv.classList.add('hidden');
+          }
+        }
       }
-    } else {
-      element.classList.remove('text-green-500', 'dark:text-green-400');
-      element.classList.add('text-gray-500', 'dark:text-gray-400');
-      if (svg) {
-        svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>';
+
+      function validatePassword() {
+        const password = document.getElementById('password1').value;
+        const password2 = document.getElementById('password2').value;
+
+        // Регулярные выражения для проверки (добавлены - и _)
+        const hasLength = password.length >= 8;
+        const hasUppercase = /[A-Z]/.test(password);
+        const hasLowercase = /[a-z]/.test(password);
+        const hasNumber = /[0-9]/.test(password);
+        const hasSpecial = /[!@#$%^&*\-_]/.test(password); // Добавлены - и _
+
+        // Обновляем визуальные индикаторы
+        updateRequirement('length', hasLength);
+        updateRequirement('uppercase', hasUppercase);
+        updateRequirement('lowercase', hasLowercase);
+        updateRequirement('number', hasNumber);
+        updateRequirement('special', hasSpecial);
+
+        // Проверяем совпадение паролей
+        validatePasswordConfirmation();
+
+        return hasLength && hasUppercase && hasLowercase && hasNumber && hasSpecial;
       }
-    }
-  }
 
-  function validatePasswordConfirmation() {
-    const password1 = document.getElementById('password1').value;
-    const password2 = document.getElementById('password2').value;
-    const matchElement = document.getElementById('passwordMatch');
+      function updateRequirement(elementId, isValid) {
+        const element = document.getElementById(elementId);
+        if (!element) return;
 
-    if (password2 === '') {
-      matchElement.classList.add('hidden');
-      return true;
-    }
+        const textSpan = element.querySelector('span:last-child') || element.querySelector('span');
+        const text = textSpan ? textSpan.textContent : element.textContent.replace(/[✓✗]/g, '').trim();
+        const svg = element.querySelector('svg');
 
-    if (password1 === password2) {
-      matchElement.classList.add('hidden');
-      return true;
-    } else {
-      matchElement.classList.remove('hidden');
-      return false;
-    }
-  }
-
-  // Функция для переключения видимости пароля
-  document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.toggle-password').forEach(button => {
-      button.addEventListener('click', function() {
-        const input = this.closest('.input-group').querySelector('input');
-        const icon = this.querySelector('img');
-
-        if (input.type === 'password') {
-          input.type = 'text';
-          if (icon) icon.style.opacity = '0.7';
+        if (isValid) {
+          element.classList.remove('text-gray-500', 'dark:text-gray-400', 'text-red-500', 'dark:text-red-400');
+          element.classList.add('text-green-500', 'dark:text-green-400');
+          if (svg) {
+            svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>';
+          }
         } else {
-          input.type = 'password';
-          if (icon) icon.style.opacity = '1';
+          element.classList.remove('text-green-500', 'dark:text-green-400');
+          element.classList.add('text-gray-500', 'dark:text-gray-400');
+          if (svg) {
+            svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>';
+          }
+        }
+      }
+
+      function validatePasswordConfirmation() {
+        const password1 = document.getElementById('password1').value;
+        const password2 = document.getElementById('password2').value;
+        const matchElement = document.getElementById('passwordMatch');
+
+        if (password2 === '') {
+          matchElement.classList.add('hidden');
+          return true;
+        }
+
+        if (password1 === password2) {
+          matchElement.classList.add('hidden');
+          return true;
+        } else {
+          matchElement.classList.remove('hidden');
+          return false;
+        }
+      }
+
+      // Функция для переключения видимости пароля
+      document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.toggle-password').forEach(button => {
+          button.addEventListener('click', function() {
+            const input = this.closest('.input-group').querySelector('input');
+            const icon = this.querySelector('img');
+
+            if (input.type === 'password') {
+              input.type = 'text';
+              if (icon) icon.style.opacity = '0.7';
+            } else {
+              input.type = 'password';
+              if (icon) icon.style.opacity = '1';
+            }
+          });
+        });
+
+        // Инициализация валидации
+        validatePassword();
+
+        // Показываем требования если есть ошибка или поле не пустое
+        const passwordField = document.getElementById('password1');
+        if (passwordField && passwordField.value) {
+          showPasswordRequirements();
         }
       });
-    });
-
-    // Инициализация валидации
-    validatePassword();
-    
-    // Показываем требования если есть ошибка или поле не пустое
-    const passwordField = document.getElementById('password1');
-    if (passwordField && passwordField.value) {
-      showPasswordRequirements();
-    }
-  });
-</script>
+    </script>
 
     <!-- Очистка ошибок после показа -->
     <?php

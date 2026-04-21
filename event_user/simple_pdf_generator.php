@@ -21,7 +21,7 @@ function generateSimpleStudentPDF($report_data, $user_info, $link) {
     
     // Информация о студенте
     $pdf->SetFont('dejavusans', '', 10);
-    $content = "Студент: " . $user_info['name'] . "\n";
+    $content = "Обучающийся: " . $user_info['name'] . "\n";
     $content .= "Email: " . $user_info['email'] . "\n";
     $content .= "Образование: " . $user_info['education_level'] . "\n\n";
     

@@ -75,7 +75,14 @@ foreach ($categories as $type => $score) {
     }
 }
 
-// Сохраняем результаты в сессии для последующего сохранения при регистрации
+// ★★★ ОЧИЩАЕМ СТАРЫЕ ДАННЫЕ ТЕСТА ПЕРЕД СОХРАНЕНИЕМ НОВЫХ ★★★
+unset($_SESSION['onboarding_results']);
+unset($_SESSION['onboarding_completed']);
+unset($_SESSION['onboarding_timestamp']);
+unset($_SESSION['just_completed_test']);
+unset($_SESSION['pending_registration']);
+
+// ★★★ СОХРАНЯЕМ РЕЗУЛЬТАТЫ В СЕССИИ ДЛЯ ПОСЛЕДУЮЩЕГО СОХРАНЕНИЯ ПРИ РЕГИСТРАЦИИ ★★★
 $_SESSION['onboarding_results'] = [
     'test_id' => $test_id,
     'test_title' => $test['title'],
@@ -86,6 +93,9 @@ $_SESSION['onboarding_results'] = [
 ];
 
 $_SESSION['onboarding_completed'] = true;
+$_SESSION['onboarding_timestamp'] = time(); // ★ ВРЕМЕННАЯ МЕТКА (Unix timestamp)
+$_SESSION['just_completed_test'] = true;    // ★ ФЛАГ, ЧТО ТЕСТ БЫЛ ПРОЙДЕН ТОЛЬКО ЧТО
+$_SESSION['pending_registration'] = true;   // ★ ФЛАГ ОЖИДАНИЯ РЕГИСТРАЦИИ
 
 // Перенаправляем на регистрацию
 header("Location: ../index.php?page=sign-up");

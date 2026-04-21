@@ -181,8 +181,14 @@
                         Срок выполнения
                     </label>
                     <input type="date" name="task_deadline"
+                           min="<?php echo date('Y-m-d'); ?>"
                            class="w-full px-4 py-3 rounded-xl border border-neutral dark:border-dark-neutral-border bg-white dark:bg-dark-neutral-bg focus:outline-none focus:ring-2 focus:ring-color-brands"
                            id="taskDeadlineInput">
+                    <?php if ($plan['deadline']): ?>
+                        <p class="text-xs text-gray-400 mt-1">
+                            Дата не может быть позже даты завершения плана: <?php echo date('d.m.Y', strtotime($plan['deadline'])); ?>
+                        </p>
+                    <?php endif; ?>
                 </div>
             </div>
             <div class="flex justify-end gap-3 mt-6">
@@ -210,15 +216,35 @@ function hideAddTaskModal() {
     document.getElementById('addTaskModal').classList.add('hidden');
 }
 
+// Валидация даты задачи перед отправкой
+document.getElementById('addTaskForm').addEventListener('submit', function(e) {
+    const taskDeadline = document.getElementById('taskDeadlineInput').value;
+    const planDeadline = '<?php echo $plan['deadline'] ?? ''; ?>';
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Проверка, что дата не в прошлом
+    if (taskDeadline && taskDeadline < today) {
+        e.preventDefault();
+        alert('Срок выполнения задачи не может быть в прошлом!');
+        return false;
+    }
+    
+    // Проверка, что дата задачи не позже даты плана (если дата плана указана)
+    if (taskDeadline && planDeadline && taskDeadline > planDeadline) {
+        e.preventDefault();
+        alert('Срок выполнения задачи не может быть позже даты завершения плана (' + 
+              new Date(planDeadline).toLocaleDateString('ru-RU') + ')');
+        return false;
+    }
+    
+    hideAddTaskModal();
+    return true;
+});
+
 // Закрытие модального окна при клике вне его
 document.getElementById('addTaskModal').addEventListener('click', function(e) {
     if (e.target === this) {
         hideAddTaskModal();
     }
-});
-
-// Закрытие модального окна при отправке формы
-document.getElementById('addTaskForm').addEventListener('submit', function() {
-    hideAddTaskModal();
 });
 </script>

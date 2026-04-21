@@ -90,7 +90,7 @@ function generateStudentPDFReport($report_data, $user_info, $link) {
     $pdf->SetFont('dejavusans', 'B', 12);
     $pdf->SetTextColor(103, 58, 183);
     $pdf->SetXY(20, $y + 5);
-    $pdf->Cell(0, 6, 'Информация о студенте', 0, 1);
+    $pdf->Cell(0, 6, 'Информация о обучающемся', 0, 1);
     
     $pdf->SetFont('dejavusans', '', 10);
     $pdf->SetTextColor(0, 0, 0);

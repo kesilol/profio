@@ -132,7 +132,7 @@ $stats = $stats_query->get_result()->fetch_assoc();
         <div class="flex justify-between items-center mb-6">
             <div>
                 <h2 class="capitalize text-gray-1100 font-bold text-[28px] leading-[35px] dark:text-gray-dark-1100">
-                    Профиль студента: <?= htmlspecialchars($student['name']) ?>
+                    Профиль обучающегося: <?= htmlspecialchars($student['name']) ?>
                 </h2>
                 <p class="text-gray-500"><?= htmlspecialchars($student['email']) ?></p>
             </div>
@@ -252,7 +252,7 @@ $stats = $stats_query->get_result()->fetch_assoc();
         </div>
         <?php endif; ?>
 
-        <!-- Рекомендации (только актуальные) -->
+       <!-- Рекомендации (только актуальные) -->
 <div class="rounded-2xl border border-neutral bg-neutral-bg dark:border-dark-neutral-border dark:bg-dark-neutral-bg p-6 mb-6">
     <h3 class="text-subtitle-semibold font-semibold text-gray-1100 dark:text-gray-dark-1100 mb-4">
         Рекомендованные профессии
@@ -260,7 +260,16 @@ $stats = $stats_query->get_result()->fetch_assoc();
 
     <?php if ($recommendations && $recommendations->num_rows > 0): ?>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <?php while ($rec = $recommendations->fetch_assoc()): ?>
+            <?php 
+            $displayed_professions = []; // Массив для отслеживания уже выведенных профессий
+            while ($rec = $recommendations->fetch_assoc()): 
+                // Пропускаем, если профессия уже была выведена
+                if (in_array($rec['profession_id'], $displayed_professions)) {
+                    continue;
+                }
+                // Добавляем ID профессии в массив выведенных
+                $displayed_professions[] = $rec['profession_id'];
+            ?>
                 <div class="border border-neutral dark:border-dark-neutral-border rounded-lg p-4 hover:shadow-md transition-shadow">
                     <div class="flex justify-between items-start mb-3">
                         <div class="flex items-center gap-3">

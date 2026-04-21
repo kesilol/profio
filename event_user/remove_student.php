@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['student_id'])) {
     $name_query->bind_param("i", $student_id);
     $name_query->execute();
     $name_result = $name_query->get_result();
-    $student_name = "Студент";
+    $student_name = "Обучающийся";
     if ($name_result->num_rows > 0) {
         $student = $name_result->fetch_assoc();
         $student_name = $student['name'];
@@ -26,9 +26,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['student_id'])) {
     $delete_query->bind_param("ii", $curator_id, $student_id);
     
     if ($delete_query->execute()) {
-        $_SESSION['success'] = "Студент {$student_name} удален из списка";
+        $_SESSION['success'] = "Обучающийся {$student_name} удален из списка";
     } else {
-        $_SESSION['error'] = "Ошибка при удалении студента: " . $link->error;
+        $_SESSION['error'] = "Ошибка при удалении обучающегося: " . $link->error;
     }
     
     header("Location: ../index.php?page=manage-students");

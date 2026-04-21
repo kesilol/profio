@@ -7,7 +7,7 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'куратор')
 }
 
 if (!isset($_GET['id'])) {
-    die('ID студента не указан');
+    die('ID обучающегося не указан');
 }
 
 $student_id = intval($_GET['id']);
@@ -20,7 +20,7 @@ $check_query->execute();
 $check_result = $check_query->get_result();
 
 if ($check_result->num_rows === 0) {
-    die('Студент не найден в вашем списке');
+    die('Обучающийся не найден в вашем списке');
 }
 
 // Получаем детальную информацию о студенте

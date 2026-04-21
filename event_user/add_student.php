@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['student_email'])) {
     $student_email = trim($_POST['student_email']);
     
     // Ищем студента по email с проверкой роли
-    $student_query = $link->prepare("SELECT id, name, role FROM users WHERE email = ? AND role = 'студент'");
+    $student_query = $link->prepare("SELECT id, name, role FROM users WHERE email = ? AND role = 'обучающийся'");
     $student_query->bind_param("s", $student_email);
     $student_query->execute();
     $student_result = $student_query->get_result();
@@ -43,20 +43,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['student_email'])) {
             
             if ($other_curator_result->num_rows > 0) {
                 $other_curator = $other_curator_result->fetch_assoc();
-                $_SESSION['error'] = "Студент {$student_name} уже привязан к куратору {$other_curator['curator_name']}";
+                $_SESSION['error'] = "Обучающийся {$student_name} уже привязан к куратору {$other_curator['curator_name']}";
             } else {
                 // Добавляем студента (студент свободен)
                 $insert_query = $link->prepare("INSERT INTO curator_students (curator_id, student_id) VALUES (?, ?)");
                 $insert_query->bind_param("ii", $curator_id, $student_id);
                 
                 if ($insert_query->execute()) {
-                    $_SESSION['success'] = "Студент {$student_name} успешно добавлен в ваш список";
+                    $_SESSION['success'] = "Обучающийся {$student_name} успешно добавлен в ваш список";
                 } else {
-                    $_SESSION['error'] = "Ошибка при добавлении студента: " . $link->error;
+                    $_SESSION['error'] = "Ошибка при добавлении обучающегося: " . $link->error;
                 }
             }
         } else {
-            $_SESSION['error'] = "Студент {$student_name} уже в вашем списке";
+            $_SESSION['error'] = "Обучающийся {$student_name} уже в вашем списке";
         }
     } else {
         // Проверяем, существует ли пользователь вообще
@@ -67,13 +67,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['student_email'])) {
         
         if ($user_result->num_rows > 0) {
             $user = $user_result->fetch_assoc();
-            if ($user['role'] !== 'студент') {
-                $_SESSION['error'] = "Пользователь {$user['name']} не является студентом";
+            if ($user['role'] !== 'обучающийся') {
+                $_SESSION['error'] = "Пользователь {$user['name']} не является обучающимся";
             } else {
-                $_SESSION['error'] = "Студент {$user['name']} не найден или недоступен для добавления";
+                $_SESSION['error'] = "Обучающийся {$user['name']} не найден или недоступен для добавления";
             }
         } else {
-            $_SESSION['error'] = "❌ Студент с email <strong>{$student_email}</strong> не найден в системе";
+            $_SESSION['error'] = "❌ Обучающийся с email <strong>{$student_email}</strong> не найден в системе";
         }
     }
     

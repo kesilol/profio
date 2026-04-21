@@ -564,7 +564,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['landing_feedback'])) 
             </div>
             <span class="footer-brand">Profio</span>
           </div>
-          <p class="text-gray-500 small">Помогаем выбрать путь к успешной карьере с 2024 года</p>
+          <p class="text-gray-500 small">Помогаем выбрать путь к успешной карьере с 2026 года</p>
         </div>
 
         <div class="col-md-4 mb-4 mb-md-0">
@@ -606,7 +606,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['landing_feedback'])) 
       <div class="footer-divider my-4"></div>
 
       <div class="footer-copyright text-center">
-        <p class="small text-gray-500 mb-0">&copy; 2024 Profio. Все права защищены.</p>
+        <p class="small text-gray-500 mb-0">&copy; 2026 Profio. Все права защищены.</p>
         <p class="small text-gray-400 mt-2">Проект реализуется при поддержке Министерства образования Нижегородской области</p>
       </div>
     </div>

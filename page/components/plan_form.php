@@ -1,6 +1,6 @@
 <div class="max-w-4xl mx-auto">
     <div class="rounded-2xl border border-neutral bg-neutral-bg dark:border-dark-neutral-border dark:bg-dark-neutral-bg p-6">
-        <form method="POST" class="space-y-6">
+        <form method="POST" class="space-y-6" id="planForm">
             <?php if ($action === 'edit'): ?>
                 <input type="hidden" name="update_plan" value="1">
             <?php else: ?>
@@ -42,7 +42,9 @@
                         </label>
                         <input type="date" name="deadline" 
                                value="<?php echo $plan['deadline'] ?? ''; ?>"
-                               class="w-full px-4 py-3 rounded-xl border border-neutral dark:border-dark-neutral-border bg-white dark:bg-dark-neutral-bg focus:outline-none focus:ring-2 focus:ring-color-brands">
+                               min="<?php echo date('Y-m-d'); ?>"
+                               class="w-full px-4 py-3 rounded-xl border border-neutral dark:border-dark-neutral-border bg-white dark:bg-dark-neutral-bg focus:outline-none focus:ring-2 focus:ring-color-brands"
+                               id="planDeadline">
                     </div>
                     
                     <div>
@@ -72,10 +74,25 @@
                 <a href="index.php?page=plan" class="btn border border-neutral text-gray-500 dark:border-dark-neutral-border dark:text-gray-dark-500 px-6">
                     Отмена
                 </a>
-                <button type="submit" class="btn bg-color-brands text-white px-8">
+                <button type="submit" class="btn bg-color-brands text-white px-8" id="submitBtn">
                     <?php echo $action === 'edit' ? 'Обновить план' : 'Создать план'; ?>
                 </button>
             </div>
         </form>
     </div>
 </div>
+
+<script>
+document.getElementById('planForm').addEventListener('submit', function(e) {
+    const deadline = document.getElementById('planDeadline').value;
+    const today = new Date().toISOString().split('T')[0];
+    
+    if (deadline && deadline < today) {
+        e.preventDefault();
+        alert('Дата завершения не может быть в прошлом!');
+        return false;
+    }
+    
+    return true;
+});
+</script>

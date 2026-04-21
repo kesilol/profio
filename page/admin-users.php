@@ -71,7 +71,7 @@ $users = $stmt->get_result();
         <div class="relative">
             <select id="roleFilter" class="bg-gray-100 rounded-xl py-3 px-4 pr-10 border-0 focus:ring-2 focus:ring-color-brands dark:bg-gray-dark-100 cursor-pointer appearance-none">
                 <option value="">Все роли</option>
-                <option value="студент">Студенты</option>
+                <option value="обучающийся">Обучающиеся</option>
                 <option value="куратор">Кураторы</option>
                 <option value="администратор">Администраторы</option>
             </select>

@@ -9,7 +9,7 @@ if (!isset($_SESSION['user'])) {
 }
 
 $user_id = $_SESSION['user']['id'] ?? $_SESSION['user']['id_user'] ?? null;
-$user_role = $_SESSION['user']['role'] ?? 'студент';
+$user_role = $_SESSION['user']['role'] ?? 'обучающийся';
 $user_name = $_SESSION['user']['login'] ?? $_SESSION['user']['name'] ?? '';
 $user_email = $_SESSION['user']['email'] ?? '';
 
@@ -227,7 +227,7 @@ if ($user_role === 'администратор') {
                                     <p class="text-gray-500 dark:text-gray-dark-500">
                                         <?php 
                                         $role_names = [
-                                            'студент' => 'Студент',
+                                            'обучающийся' => 'Обучающийся',
                                             'куратор' => 'Куратор',
                                             'администратор' => 'Администратор'
                                         ];
@@ -279,14 +279,14 @@ if ($user_role === 'администратор') {
                     <div class="rounded-2xl border border-neutral bg-neutral-bg dark:border-dark-neutral-border dark:bg-dark-neutral-bg p-6">
                         <h3 class="text-lg font-semibold text-gray-1100 dark:text-gray-dark-1100 mb-4">
                             <?php 
-                            if ($user_role === 'студент') echo 'Моя статистика';
+                            if ($user_role === 'обучающийся') echo 'Моя статистика';
                             elseif ($user_role === 'куратор') echo 'Статистика кураторства';
                             else echo 'Статистика системы';
                             ?>
                         </h3>
                         
                         <div class="space-y-4">
-                            <?php if ($user_role === 'студент'): ?>
+                            <?php if ($user_role === 'обучающийся'): ?>
                                 <div class="flex justify-between items-center">
                                     <span class="text-gray-500 dark:text-gray-dark-500">Пройдено тестов:</span>
                                     <span class="font-semibold"><?php echo $tests_count; ?></span>
@@ -301,15 +301,15 @@ if ($user_role === 'администратор') {
                                 </div>
                             <?php elseif ($user_role === 'куратор'): ?>
                                 <div class="flex justify-between items-center">
-                                    <span class="text-gray-500 dark:text-gray-dark-500">Мои студенты:</span>
+                                    <span class="text-gray-500 dark:text-gray-dark-500">Мои обучающиеся:</span>
                                     <span class="font-semibold"><?php echo $curator_students_count; ?></span>
                                 </div>
                                 <div class="flex justify-between items-center">
-                                    <span class="text-gray-500 dark:text-gray-dark-500">Всего тестов у студентов:</span>
+                                    <span class="text-gray-500 dark:text-gray-dark-500">Всего тестов у обучающихся:</span>
                                     <span class="font-semibold"><?php echo $tests_count; ?></span>
                                 </div>
                                 <div class="flex justify-between items-center">
-                                    <span class="text-gray-500 dark:text-gray-dark-500">Рекомендаций у студентов:</span>
+                                    <span class="text-gray-500 dark:text-gray-dark-500">Рекомендаций у обучающихся:</span>
                                     <span class="font-semibold"><?php echo $recommendations_count; ?></span>
                                 </div>
                             <?php else: ?>
@@ -341,7 +341,7 @@ if ($user_role === 'администратор') {
             </div>
 
             <!-- Последняя активность (только для студентов) -->
-            <?php if ($user_role === 'студент'): ?>
+            <?php if ($user_role === 'обучающийся'): ?>
             <div class="rounded-2xl border border-neutral bg-neutral-bg dark:border-dark-neutral-border dark:bg-dark-neutral-bg p-6 mb-6">
                 <h3 class="text-lg font-semibold text-gray-1100 dark:text-gray-dark-1100 mb-4">
                     Последняя активность
@@ -486,10 +486,10 @@ if ($user_role === 'администратор') {
                 <div class="flex justify-between items-center">
                     <div>
                         <h3 class="text-lg font-semibold text-gray-1100 dark:text-gray-dark-1100 mb-2">
-                            Управление студентами
+                            Управление обучающимися
                         </h3>
                         <p class="text-sm text-gray-500 dark:text-gray-dark-500">
-                            Добавляйте и просматривайте своих студентов
+                            Добавляйте и просматривайте своих обучающихся
                         </p>
                     </div>
                     <a href="index.php?page=manage-students" 
