@@ -16,7 +16,7 @@ if ($user_role === 'обучающийся') {
 } elseif ($user_role === 'куратор') {
     $report_data = getCuratorReportData($link, $user_id);
 } elseif ($user_role === 'администратор') {
-    $report_data = getAdminReportData($link); 
+    $report_data = getAdminReportData($link);
 }
 
 // Проверяем на ошибки
@@ -29,7 +29,7 @@ if (isset($report_data['error'])) {
 <main class="overflow-x-scroll scrollbar-hide flex flex-col justify-between pt-[42px] px-[23px] pb-[28px]">
     <div>
         <h2 class="capitalize text-gray-1100 font-bold text-[28px] leading-[35px] dark:text-gray-dark-1100 mb-[13px]">
-            <?php 
+            <?php
             if ($user_role === 'обучающийся') {
                 echo 'Мой отчет';
             } elseif ($user_role === 'куратор') {
@@ -153,7 +153,7 @@ if (isset($report_data['error'])) {
                         )
                         ORDER BY r.match_percentage DESC
                     ";
-                    
+
                     $stmt_unique = $link->prepare($unique_recommendations_query);
                     $stmt_unique->bind_param("i", $user_id);
                     $stmt_unique->execute();
@@ -163,7 +163,7 @@ if (isset($report_data['error'])) {
 
                     <?php if ($unique_count > 0): ?>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <?php while ($rec = $unique_recommendations->fetch_assoc()): 
+                            <?php while ($rec = $unique_recommendations->fetch_assoc()):
                                 $institutions = getInstitutionsForProfessionReport($link, $rec['profession_id'], 2);
                                 $companies = getCompaniesForProfessionReport($link, $rec['profession_id'], 2);
                             ?>
@@ -335,7 +335,7 @@ if (isset($report_data['error'])) {
 
             </div>
 
-            <?php elseif ($user_role === 'куратор'): ?>
+        <?php elseif ($user_role === 'куратор'): ?>
             <!-- СВОДКА ДЛЯ КУРАТОРА -->
             <div class="space-y-6">
 
@@ -361,7 +361,7 @@ if (isset($report_data['error'])) {
                     </div>
                     <div class="rounded-2xl border border-neutral bg-neutral-bg dark:border-dark-neutral-border dark:bg-dark-neutral-bg p-6 text-center">
                         <div class="text-2xl font-bold text-orange mb-1">
-                            <?php 
+                            <?php
                             // Вместо среднего балла - процент студентов с рекомендациями
                             $total_students = $report_data['overall_stats']['total_students'];
                             $students_with_recommendations = $report_data['overall_stats']['students_with_recommendations'] ?? 0;
@@ -443,7 +443,7 @@ if (isset($report_data['error'])) {
                                                 <?= $is_active ? 'Активен' : 'Неактивен' ?>
                                             </span>
                                             <span class="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800">
-                                                <?php 
+                                                <?php
                                                 $edu_map = [
                                                     'нет образования' => 'Нет обр.',
                                                     'среднее' => 'Среднее',
@@ -523,7 +523,8 @@ if (isset($report_data['error'])) {
                             <div class="col-span-full text-center py-8">
                                 <i class="bi bi-people text-4xl text-gray-300 mb-3"></i>
                                 <p class="text-gray-500 dark:text-gray-dark-500">Нет обучающихся в вашем списке</p>
-                                <a href="index.php?page=manage-students" class="btn bg-color-brands text-white mt-3 inline-block">
+                                <a href="index.php?page=manage-students" class="inline-flex items-center justify-center gap-2 bg-color-brands text-white px-4 py-2 rounded-lg font-semibold hover:bg-opacity-90 transition mt-3">
+                                    <i class="bi bi-person-plus"></i>
                                     Добавить обучающихся
                                 </a>
                             </div>
@@ -582,7 +583,7 @@ if (isset($report_data['error'])) {
                                         <?php echo $cat['recommendations_count']; ?>
                                     </div>
                                     <div class="text-sm text-gray-500 dark:text-gray-dark-500 mb-1">
-                                        <?php 
+                                        <?php
                                         $category_map = [
                                             'техническая' => 'Технические',
                                             'гуманитарная' => 'Гуманитарные',
@@ -590,7 +591,7 @@ if (isset($report_data['error'])) {
                                             'научная' => 'Научные',
                                             'бизнес' => 'Бизнес'
                                         ];
-                                        echo $category_map[$cat['category']] ?? ucfirst($cat['category']); 
+                                        echo $category_map[$cat['category']] ?? ucfirst($cat['category']);
                                         ?>
                                     </div>
                                     <div class="text-xs text-gray-400">
@@ -640,7 +641,7 @@ if (isset($report_data['error'])) {
         <?php elseif ($user_role === 'администратор'): ?>
             <!-- ПАНЕЛЬ АДМИНИСТРАТОРА (остается без изменений) -->
             <div class="space-y-6">
-                
+
                 <!-- Общая статистика системы -->
                 <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
                     <div class="rounded-2xl border border-neutral bg-neutral-bg dark:border-dark-neutral-border dark:bg-dark-neutral-bg p-6 text-center">
