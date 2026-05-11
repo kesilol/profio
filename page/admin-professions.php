@@ -1,4 +1,5 @@
 <?php
+/** @var mysqli $link */
 // Проверка прав администратора
 if ($_SESSION['user']['role'] !== 'администратор') {
     header("Location: index.php");

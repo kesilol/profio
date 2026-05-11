@@ -1,4 +1,5 @@
 <?php
+/** @var mysqli $link */
 // Проверка прав доступа
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'администратор') {
     header("Location: index.php?page=sign-in");

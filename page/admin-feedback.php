@@ -1,4 +1,5 @@
 <?php
+/** @var mysqli $link */
 // Проверка прав администратора
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'администратор') {
     header("Location: index.php");
@@ -31,6 +32,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $admin_id = $_SESSION['user']['id'] ?? $_SESSION['user']['id_user'];
         $link->query("UPDATE feedback SET admin_response = '$response', status = 'replied', responded_by = $admin_id, responded_at = NOW() WHERE id = $id");
         $message = "Ответ отправлен пользователю";
+        $message_type = "success";
+    }
+    
+    // Новая обработка для редактирования ответа
+    if (isset($_POST['edit_response'])) {
+        $id = intval($_POST['id']);
+        $response = $link->real_escape_string($_POST['response']);
+        $admin_id = $_SESSION['user']['id'] ?? $_SESSION['user']['id_user'];
+        $link->query("UPDATE feedback SET admin_response = '$response', responded_by = $admin_id, responded_at = NOW() WHERE id = $id");
+        $message = "Ответ успешно обновлен";
         $message_type = "success";
     }
     
@@ -203,24 +214,58 @@ $stats = $link->query("
                         </div>
                         
                         <?php if ($msg['admin_response']): ?>
-                            <div class="mt-4 p-4 bg-green-50 dark:bg-green-950/20 rounded-lg border-l-4 border-green-500">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <i class="bi bi-reply-all-fill text-green-600"></i>
-                                    <span class="font-semibold text-green-700 dark:text-green-400">Ответ администратора:</span>
-                                    <?php if ($msg['admin_name']): ?>
-                                        <span class="text-xs text-gray-500">(<?= htmlspecialchars($msg['admin_name']) ?>)</span>
-                                    <?php endif; ?>
-                                </div>
-                                <p class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                                    <?= nl2br(htmlspecialchars($msg['admin_response'])) ?>
-                                </p>
-                                <?php if ($msg['responded_at']): ?>
-                                    <p class="text-xs text-gray-400 mt-2">
-                                        <?= date('d.m.Y H:i', strtotime($msg['responded_at'])) ?>
-                                    </p>
-                                <?php endif; ?>
-                            </div>
-                        <?php endif; ?>
+    <div class="mt-4 p-4 bg-green-50 dark:bg-green-950/20 rounded-lg border-l-4 border-green-500" id="response-<?= $msg['id'] ?>">
+        <div class="flex justify-between items-start mb-2">
+            <div class="flex items-center gap-2">
+                <i class="bi bi-reply-all-fill text-green-600"></i>
+                <span class="font-semibold text-green-700 dark:text-green-400">Ответ администратора:</span>
+                <?php if ($msg['admin_name']): ?>
+                    <span class="text-xs text-gray-500">(<?= htmlspecialchars($msg['admin_name']) ?>)</span>
+                <?php endif; ?>
+            </div>
+            
+            <!-- Кнопка редактирования в твоем стиле -->
+            <button type="button" 
+                    onclick="toggleEditResponse(<?= $msg['id'] ?>)" 
+                    class="text-color-brands hover:opacity-80 text-sm flex items-center gap-1">
+                <i class="bi bi-pencil"></i> Редактировать
+            </button>
+        </div>
+        
+        <!-- Отображение ответа -->
+        <div id="response-view-<?= $msg['id'] ?>">
+            <p class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                <?= nl2br(htmlspecialchars($msg['admin_response'])) ?>
+            </p>
+            <?php if ($msg['responded_at']): ?>
+                <p class="text-xs text-gray-400 mt-2">
+                    <?= date('d.m.Y H:i', strtotime($msg['responded_at'])) ?>
+                </p>
+            <?php endif; ?>
+        </div>
+        
+        <!-- Форма редактирования (скрыта по умолчанию) -->
+        <div id="response-edit-<?= $msg['id'] ?>" style="display: none;">
+            <form method="POST" class="mt-3">
+                <input type="hidden" name="id" value="<?= $msg['id'] ?>">
+                <textarea name="response" rows="4" required 
+                          class="w-full px-4 py-2 border border-neutral rounded-lg bg-white dark:bg-dark-neutral-bg focus:ring-2 focus:ring-color-brands focus:border-transparent"
+                          placeholder="Введите отредактированный ответ..."><?= htmlspecialchars($msg['admin_response']) ?></textarea>
+                <div class="flex gap-2 mt-2">
+                    <button type="submit" name="edit_response" 
+                            class="bg-color-brands hover:bg-opacity-90 text-white px-5 py-2 rounded-lg font-medium transition flex items-center gap-2">
+                        <i class="bi bi-save"></i> Сохранить
+                    </button>
+                    <button type="button" 
+                            onclick="cancelEditResponse(<?= $msg['id'] ?>)"
+                            class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 px-5 py-2 rounded-lg font-medium transition">
+                        Отмена
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+<?php endif; ?>
                         
                         <!-- Действия в зависимости от типа пользователя -->
                         <?php if ($msg['status'] !== 'replied'): ?>
@@ -341,4 +386,49 @@ function copyToClipboard(text) {
     // Удаляем временный input
     document.body.removeChild(input);
 }
+
+// Функции для редактирования ответа
+function toggleEditResponse(messageId) {
+    const viewDiv = document.getElementById(`response-view-${messageId}`);
+    const editDiv = document.getElementById(`response-edit-${messageId}`);
+    
+    if (viewDiv.style.display === 'none') {
+        // Если сейчас режим редактирования, возвращаемся к просмотру
+        viewDiv.style.display = 'block';
+        editDiv.style.display = 'none';
+    } else {
+        // Переключаемся в режим редактирования
+        viewDiv.style.display = 'none';
+        editDiv.style.display = 'block';
+        
+        // Фокусируемся на текстовом поле
+        const textarea = editDiv.querySelector('textarea');
+        if (textarea) {
+            textarea.focus();
+            // Устанавливаем курсор в конец текста
+            const length = textarea.value.length;
+            textarea.setSelectionRange(length, length);
+        }
+    }
+}
+
+function cancelEditResponse(messageId) {
+    const viewDiv = document.getElementById(`response-view-${messageId}`);
+    const editDiv = document.getElementById(`response-edit-${messageId}`);
+    
+    viewDiv.style.display = 'block';
+    editDiv.style.display = 'none';
+}
+
+// Автоматическое скрытие сообщения об успехе через 3 секунды
+setTimeout(() => {
+    const messageDiv = document.querySelector('.mb-4.p-3.rounded-lg');
+    if (messageDiv) {
+        messageDiv.style.transition = 'opacity 0.5s';
+        messageDiv.style.opacity = '0';
+        setTimeout(() => {
+            if (messageDiv) messageDiv.remove();
+        }, 500);
+    }
+}, 3000);
 </script>
