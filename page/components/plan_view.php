@@ -161,44 +161,28 @@
     </div>
 </div>
 
-<!-- Модальное окно добавления задачи -->
-<div id="addTaskModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-    <div class="bg-white dark:bg-dark-neutral-bg rounded-2xl p-6 max-w-md w-full mx-4">
-        <h3 class="text-lg font-bold mb-4">Добавить задачу</h3>
+<!-- Модальное окно добавления задачи (исправленное) -->
+<div id="addTaskModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 9999; justify-content: center; align-items: center;">
+    <div style="background: white; border-radius: 1rem; max-width: 500px; width: 90%; margin: 20px; padding: 1.5rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
+        <h3 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 1rem;">Добавить задачу</h3>
         <form method="POST" id="addTaskForm">
             <input type="hidden" name="add_task" value="1">
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-500 dark:text-gray-dark-500 mb-2">
-                        Описание задачи *
-                    </label>
-                    <textarea name="task_text" rows="3" required
-                              class="w-full px-4 py-3 rounded-xl border border-neutral dark:border-dark-neutral-border bg-white dark:bg-dark-neutral-bg focus:outline-none focus:ring-2 focus:ring-color-brands"
-                              placeholder="Опишите задачу..." id="taskTextInput"></textarea>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-500 dark:text-gray-dark-500 mb-2">
-                        Срок выполнения
-                    </label>
-                    <input type="date" name="task_deadline"
-                           min="<?php echo date('Y-m-d'); ?>"
-                           class="w-full px-4 py-3 rounded-xl border border-neutral dark:border-dark-neutral-border bg-white dark:bg-dark-neutral-bg focus:outline-none focus:ring-2 focus:ring-color-brands"
-                           id="taskDeadlineInput">
-                    <?php if ($plan['deadline']): ?>
-                        <p class="text-xs text-gray-400 mt-1">
-                            Дата не может быть позже даты завершения плана: <?php echo date('d.m.Y', strtotime($plan['deadline'])); ?>
-                        </p>
-                    <?php endif; ?>
-                </div>
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem;">Описание задачи *</label>
+                <textarea name="task_text" rows="3" required style="width: 100%; padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 0.75rem;" id="taskTextInput"></textarea>
             </div>
-            <div class="flex justify-end gap-3 mt-6">
-                <button type="button" onclick="hideAddTaskModal()" 
-                        class="btn border border-neutral text-gray-500 dark:border-dark-neutral-border dark:text-gray-dark-500">
-                    Отмена
-                </button>
-                <button type="submit" class="btn bg-color-brands text-white">
-                    Добавить
-                </button>
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem;">Срок выполнения</label>
+                <input type="date" name="task_deadline" min="<?php echo date('Y-m-d'); ?>" style="width: 100%; padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 0.75rem;" id="taskDeadlineInput">
+                <?php if ($plan['deadline']): ?>
+                    <p style="font-size: 0.75rem; color: #9ca3af; margin-top: 0.25rem;">
+                        Дата не может быть позже даты завершения плана: <?php echo date('d.m.Y', strtotime($plan['deadline'])); ?>
+                    </p>
+                <?php endif; ?>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem;">
+                <button type="button" onclick="hideAddTaskModal()" style="padding: 0.5rem 1rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; background: transparent; cursor: pointer;">Отмена</button>
+                <button type="submit" style="padding: 0.5rem 1rem; background-color: #673AB7; color: white; border-radius: 0.5rem; cursor: pointer;">Добавить</button>
             </div>
         </form>
     </div>
@@ -206,14 +190,17 @@
 
 <script>
 function showAddTaskModal() {
-    // Очищаем поля формы при открытии модального окна
     document.getElementById('taskTextInput').value = '';
     document.getElementById('taskDeadlineInput').value = '';
-    document.getElementById('addTaskModal').classList.remove('hidden');
+    var modal = document.getElementById('addTaskModal');
+    modal.style.display = 'flex';  // или 'block', но если используешь flex — оставь flex
+    document.body.style.overflow = 'hidden';
 }
 
 function hideAddTaskModal() {
-    document.getElementById('addTaskModal').classList.add('hidden');
+    var modal = document.getElementById('addTaskModal');
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
 }
 
 // Валидация даты задачи перед отправкой
